@@ -26,11 +26,13 @@ script_dir = Path(__file__).parent.absolute()
 if str(script_dir) not in sys.path:
     sys.path.insert(0, str(script_dir))
 
-# Import the formatter function
+# Import the formatter function and encoding utilities
 try:
     from .formatter import format_pseint_code
+    from .encoding_utils import ensure_clean_text
 except ImportError:
     from formatter import format_pseint_code
+    from encoding_utils import ensure_clean_text
 
 logging.basicConfig(level=logging.DEBUG, filename="/tmp/pseint_lsp.log")
 
@@ -90,13 +92,20 @@ def format_document(
     logging.info(f"Attempting to format: {document_uri}")
 
     try:
-        formatted_code = format_pseint_code(source_code)
+        # Apply editor-agnostic encoding correction
+        clean_source_code = ensure_clean_text(source_code, document_uri)
+        
+        # Log if encoding issues were detected and fixed
+        if clean_source_code != source_code:
+            logging.info(f"Applied encoding corrections to {document_uri}")
+        
+        formatted_code = format_pseint_code(clean_source_code)
 
-        if formatted_code == source_code:
+        if formatted_code == clean_source_code:
             logging.info(f"No formatting changes for {document_uri}")
             return []
 
-        lines = source_code.splitlines()
+        lines = clean_source_code.splitlines()
         range_end_line = len(lines)
 
         doc_range = Range(
