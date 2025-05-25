@@ -104,10 +104,10 @@ def test_full_reference_code():
     
     if passed_checks == total_checks:
         print("🎉 All tests passed! The formatter correctly handles complex strings.")
-        return True
+        assert True  # Explicit assertion for pytest
     else:
         print("⚠️  Some checks failed. Review the output above.")
-        return False
+        assert False, f"Only {passed_checks}/{total_checks} checks passed"
 
 
 if __name__ == "__main__":

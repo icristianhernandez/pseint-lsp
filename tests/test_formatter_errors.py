@@ -106,8 +106,8 @@ FinProceso"""
 FinProceso"""
         
         formatted = format_pseint_code(code)
-        # Should have proper spacing in function parameters
-        self.assertIn("Subcadena(opcionNumeros, i, i)", formatted)
+        # Should have proper spacing in function parameters and correct capitalization
+        self.assertIn("SubCadena(opcionNumeros, i, i)", formatted)
 
     def test_comment_spacing_consistency(self):
         """Test that comment spacing is consistent."""

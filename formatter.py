@@ -220,22 +220,80 @@ def format_pseint_code(code_string: str) -> str:
 
                     # Apply keyword casing to this segment
                     for kw_lower, kw_proper in sorted_keywords_for_casing:
-                        if " " in kw_lower:
-                            pattern_parts: List[str] = [
-                                re.escape(part) for part in kw_lower.split(" ")
-                            ]
-                            regex_pattern: str = (
-                                r"\b" + r"\s+".join(pattern_parts) + r"\b"
-                            )
-                        else:
-                            regex_pattern: str = r"\b" + re.escape(kw_lower) + r"\b"
-
-                        try:
+                        # Special handling for single-letter logical operators
+                        # Only replace them when they are clearly used as operators, not variables or parts of words
+                        if kw_lower in ['y', 'o'] and len(kw_lower) <= 2:
+                            # For logical operators, only replace when they are standalone and between expressions
+                            if kw_lower == 'y':
+                                # Replace Y when it's between expressions (not at start of line as variable)
+                                # More specific patterns to avoid false matches
+                                segment = re.sub(
+                                    r'(?<=\))\s*' + re.escape(kw_lower) + r'\s*(?=\()',
+                                    f' {kw_proper} ',
+                                    segment,
+                                    flags=re.IGNORECASE
+                                )
+                                # Pattern for word Y word, but only when Y is surrounded by spaces or punctuation
+                                segment = re.sub(
+                                    r'(?<=[\w\)])\s+' + re.escape(kw_lower) + r'\s+(?=[\w\(])',
+                                    f' {kw_proper} ',
+                                    segment,
+                                    flags=re.IGNORECASE
+                                )
+                            elif kw_lower == 'o':
+                                # For O, be even more careful - only replace when clearly an operator
+                                # Look for patterns like ") O (" or "word O word" but not inside words
+                                segment = re.sub(
+                                    r'(?<=\))\s*' + re.escape(kw_lower) + r'\s*(?=\()',
+                                    f' {kw_proper} ',
+                                    segment,
+                                    flags=re.IGNORECASE
+                                )
+                                # Only replace O when it's a standalone word with spaces around it
+                                segment = re.sub(
+                                    r'(?<=\s)' + re.escape(kw_lower) + r'(?=\s)',
+                                    kw_proper,
+                                    segment,
+                                    flags=re.IGNORECASE
+                                )
+                        elif kw_lower == 'no':
+                            # NO is often used as a prefix operator
+                            # Only replace when it's clearly the NO logical operator
                             segment = re.sub(
-                                regex_pattern, kw_proper, segment, flags=re.IGNORECASE
+                                r'\b' + re.escape(kw_lower) + r'\s*(?=\()',
+                                f'{kw_proper} ',
+                                segment,
+                                flags=re.IGNORECASE
                             )
-                        except re.error:
-                            pass
+                            # Also handle "NO variable" patterns
+                            segment = re.sub(
+                                r'\b' + re.escape(kw_lower) + r'\s+(?=\w)',
+                                f'{kw_proper} ',
+                                segment,
+                                flags=re.IGNORECASE
+                            )
+                        # Skip boolean literals - let them be handled by general keyword replacement or not at all
+                        elif kw_lower in ['verdadero', 'falso']:
+                            # Skip these to preserve original case
+                            continue
+                        else:
+                            # Standard keyword replacement for other keywords
+                            if " " in kw_lower:
+                                pattern_parts: List[str] = [
+                                    re.escape(part) for part in kw_lower.split(" ")
+                                ]
+                                regex_pattern: str = (
+                                    r"\b" + r"\s+".join(pattern_parts) + r"\b"
+                                )
+                            else:
+                                regex_pattern: str = r"\b" + re.escape(kw_lower) + r"\b"
+
+                            try:
+                                segment = re.sub(
+                                    regex_pattern, kw_proper, segment, flags=re.IGNORECASE
+                                )
+                            except re.error:
+                                pass
 
                     result.append(segment)
 
