@@ -40,6 +40,7 @@ def format_pseint_code(code_string: str) -> str:
         "Funcion",
         "FinFuncion",
         "Definir",
+        "Dimension",  # Fix ERROR 02: Add Dimension keyword
         "Como",
         "Leer",
         "Escribir",
@@ -70,7 +71,22 @@ def format_pseint_code(code_string: str) -> str:
         "Texto",
         "Cadena",
         "MOD",
+        "Y",  # Fix ERROR 05: Add logical operator Y
+        "O",  # Add logical operator O
+        "NO", # Add logical operator NO
+        "Verdadero",
+        "Falso",
         "Por Referencia",
+        # Fix ERROR 07: Add common function names
+        "SubCadena",
+        "Longitud", 
+        "Aleatorio",
+        "ConvertirANumero",
+        "Mayusculas",
+        "Minusculas",
+        "Borrar Pantalla",
+        "Esperar",
+        "Milisegundos",
     ]
     all_keywords_lower_to_proper_case: Dict[str, str] = {
         kw.lower(): kw for kw in all_keywords_list
@@ -330,10 +346,36 @@ def format_pseint_code(code_string: str) -> str:
                     segment = text[segment_start:i]
 
                     # Apply operator spacing to this segment
+                    # Fix ERROR 01: Handle "Con Paso -number" specially to preserve negative numbers
+                    
+                    # Apply general operator spacing (excluding minus which is handled below)
                     segment = re.sub(
-                        r"\s*(<-|<=|>=|<>|==|!=|=|<|>|\+|-|\*|/|%|\bMOD\b|\bY\b|&|\bO\b|\||\bNO\b|~)\s*",
+                        r"\s*(<-|<=|>=|<>|==|!=|=|<|>|\+|\*|/|%|\bMOD\b|\bY\b|&|\bO\b|\||\bNO\b|~)\s*",
                         r" \1 ",
                         segment,
+                        flags=re.IGNORECASE
+                    )
+                    
+                    # Handle minus operator spacing more carefully
+                    # Only add spaces around minus when it's clearly a binary operator
+                    # Avoid spacing negative numbers (those following specific patterns)
+                    segment = re.sub(
+                        r"(\w)\s*-\s*(\w)",  # between two words/numbers: a-b -> a - b
+                        r"\1 - \2",
+                        segment
+                    )
+                    segment = re.sub(
+                        r"(\))\s*-\s*(\w)",  # after closing parenthesis: )-a -> ) - a
+                        r"\1 - \2", 
+                        segment
+                    )
+                    
+                    # Fix "Con Paso -number" after general processing (as final pass)
+                    segment = re.sub(
+                        r"(Con\s+Paso)\s+-\s+(\d+)",
+                        r"\1 -\2",
+                        segment,
+                        flags=re.IGNORECASE
                     )
                     result.append(segment)
 
