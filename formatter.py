@@ -278,20 +278,179 @@ def format_pseint_code(code_string: str) -> str:
 
         main_code = apply_keyword_spacing_outside_strings(main_code)
 
-        main_code = re.sub(
-            r"\s*(<-|<=|>=|<>|==|!=|=|<|>|\+|-|\*|/|%|\bMOD\b|\bY\b|&|\bO\b|\||\bNO\b|~)\s*",
-            r" \1 ",
-            main_code,
-        )
-        # Handle comma spacing, but preserve no-space formatting in Caso statements
-        # First, handle general comma spacing
-        main_code = re.sub(r"\s*,\s*", r", ", main_code)
-        # Then, fix Caso statements to remove space after commas
-        main_code = re.sub(r"\bCaso\s+([^:]*),\s*([^:]*?):", r"Caso \1,\2:", main_code)
-        main_code = re.sub(r"\(\s*", r"(", main_code)
-        main_code = re.sub(r"\s*\)", r")", main_code)
+        # Apply operator spacing, but preserve content inside string literals
+        def apply_operator_spacing_outside_strings(text: str) -> str:
+            """Apply operator spacing only to text outside of string literals."""
+            result: List[str] = []
+            i = 0
 
-        main_code = re.sub(r"\s+", " ", main_code).strip()
+            while i < len(text):
+                char = text[i]
+
+                if char in ['"', "'"]:
+                    # Find the complete string literal
+                    quote_char = char
+                    string_start = i
+                    i += 1  # Move past opening quote
+
+                    # Find closing quote
+                    while i < len(text) and text[i] != quote_char:
+                        i += 1
+
+                    if i < len(text):
+                        i += 1  # Include closing quote
+
+                    # Add the entire string literal as-is
+                    string_literal = text[string_start:i]
+                    result.append(string_literal)
+                else:
+                    # Outside string literal, collect until next string or end
+                    segment_start = i
+                    while i < len(text) and text[i] not in ['"', "'"]:
+                        i += 1
+
+                    segment = text[segment_start:i]
+
+                    # Apply operator spacing to this segment
+                    segment = re.sub(
+                        r"\s*(<-|<=|>=|<>|==|!=|=|<|>|\+|-|\*|/|%|\bMOD\b|\bY\b|&|\bO\b|\||\bNO\b|~)\s*",
+                        r" \1 ",
+                        segment,
+                    )
+                    result.append(segment)
+
+            return "".join(result)
+
+        # Apply punctuation spacing, but preserve content inside string literals
+        def apply_punctuation_spacing_outside_strings(text: str) -> str:
+            """Apply punctuation spacing only to text outside of string literals."""
+            result: List[str] = []
+            i = 0
+
+            while i < len(text):
+                char = text[i]
+
+                if char in ['"', "'"]:
+                    # Find the complete string literal
+                    quote_char = char
+                    string_start = i
+                    i += 1  # Move past opening quote
+
+                    # Find closing quote
+                    while i < len(text) and text[i] != quote_char:
+                        i += 1
+
+                    if i < len(text):
+                        i += 1  # Include closing quote
+
+                    # Add the entire string literal as-is
+                    string_literal = text[string_start:i]
+                    result.append(string_literal)
+                else:
+                    # Outside string literal, collect until next string or end
+                    segment_start = i
+                    while i < len(text) and text[i] not in ['"', "'"]:
+                        i += 1
+
+                    segment = text[segment_start:i]
+
+                    # Apply punctuation spacing to this segment
+                    # Handle comma spacing, but preserve no-space formatting in Caso statements
+                    segment = re.sub(r"\s*,\s*", r", ", segment)
+                    # Handle parentheses spacing
+                    segment = re.sub(r"\(\s*", r"(", segment)
+                    segment = re.sub(r"\s*\)", r")", segment)
+                    
+                    result.append(segment)
+
+            return "".join(result)
+
+        # Apply whitespace normalization, but preserve content inside string literals
+        def normalize_whitespace_outside_strings(text: str) -> str:
+            """Normalize whitespace only outside of string literals."""
+            result: List[str] = []
+            i = 0
+
+            while i < len(text):
+                char = text[i]
+
+                if char in ['"', "'"]:
+                    # Find the complete string literal
+                    quote_char = char
+                    string_start = i
+                    i += 1  # Move past opening quote
+
+                    # Find closing quote
+                    while i < len(text) and text[i] != quote_char:
+                        i += 1
+
+                    if i < len(text):
+                        i += 1  # Include closing quote
+
+                    # Add the entire string literal as-is
+                    string_literal = text[string_start:i]
+                    result.append(string_literal)
+                else:
+                    # Outside string literal, collect until next string or end
+                    segment_start = i
+                    while i < len(text) and text[i] not in ['"', "'"]:
+                        i += 1
+
+                    segment = text[segment_start:i]
+
+                    # Normalize whitespace in this segment
+                    segment = re.sub(r"\s+", " ", segment)
+                    result.append(segment)
+
+            return "".join(result).strip()
+
+        main_code = apply_operator_spacing_outside_strings(main_code)
+        main_code = apply_punctuation_spacing_outside_strings(main_code)
+        main_code = normalize_whitespace_outside_strings(main_code)
+        
+        # Then, fix Caso statements to remove space after commas (outside strings only)
+        def fix_caso_statements_outside_strings(text: str) -> str:
+            """Fix Caso statement formatting only outside of string literals."""
+            result: List[str] = []
+            i = 0
+
+            while i < len(text):
+                char = text[i]
+
+                if char in ['"', "'"]:
+                    # Find the complete string literal
+                    quote_char = char
+                    string_start = i
+                    i += 1  # Move past opening quote
+
+                    # Find closing quote
+                    while i < len(text) and text[i] != quote_char:
+                        i += 1
+
+                    if i < len(text):
+                        i += 1  # Include closing quote
+
+                    # Add the entire string literal as-is
+                    string_literal = text[string_start:i]
+                    result.append(string_literal)
+                else:
+                    # Outside string literal, collect until next string or end
+                    segment_start = i
+                    while i < len(text) and text[i] not in ['"', "'"]:
+                        i += 1
+
+                    segment = text[segment_start:i]
+
+                    # Fix Caso statements in this segment
+                    # Handle multiple comma-separated values in Caso statements
+                    if "Caso " in segment:
+                        # Match Caso statements and remove spaces after commas in the value list
+                        segment = re.sub(r"\bCaso\s+([^:]+):", lambda m: f"Caso {re.sub(r',\s*', ',', m.group(1))}:", segment)
+                    result.append(segment)
+
+            return "".join(result)
+
+        main_code = fix_caso_statements_outside_strings(main_code)
         main_code = re.sub(r"\s+;", ";", main_code)
         # main_code = re.sub(r"\s+:", ":", main_code)
 
