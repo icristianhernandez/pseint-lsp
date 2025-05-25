@@ -1,0 +1,11 @@
+[package]
+name = "pseint_lsp_server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tower-lsp = "0.15" # Downgraded further
+tokio = { version = "1.20", features = ["full"] } # Older tokio
+serde = { version = "1.0.150", features = ["derive"] } 
+serde_json = "1"
+lsp-types = "0.89" # Downgraded further
