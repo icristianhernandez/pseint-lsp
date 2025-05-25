@@ -278,6 +278,50 @@ You can also call LSP functions directly:
 * `:LspInfo` - Show LSP client status
 * `:checkhealth vim.lsp` - Check LSP health
 
+## File Encoding Compatibility
+
+### PSeInt Encoding Standard
+
+PSeInt saves `.psc` files using **ISO-8859-1 (Latin-1)** encoding by default. This encoding supports Western European characters commonly used in Spanish text, such as:
+
+* Accented vowels: `á`, `é`, `í`, `ó`, `ú`
+* The letter ñ: `ñ`
+* Other special characters: `¿`, `¡`, `ü`, etc.
+
+### VS Code Configuration
+
+To ensure proper handling of PSeInt files with special characters, configure VS Code to automatically detect file encoding:
+
+1. **Enable auto-encoding detection** in VS Code settings:
+
+   ```json
+   {
+     "files.autoGuessEncoding": true
+   }
+   ```
+
+2. **Manual encoding selection** for problematic files:
+   * Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+   * Run "Reopen Editor With Encoding"
+   * Select "Western (ISO 8859-1)"
+
+### Encoding Compatibility
+
+* **✅ UTF-8 files**: Fully supported, no configuration needed
+* **✅ ISO-8859-1 files**: Supported with proper VS Code configuration
+* **⚠️ Mixed encoding projects**: Use consistent encoding across all files
+
+### Troubleshooting Encoding Issues
+
+If you see corrupted characters like `versi�n` instead of `versión`:
+
+1. Check file encoding in VS Code status bar (bottom-right corner)
+2. If showing "UTF-8", reopen with "Western (ISO 8859-1)" encoding
+3. Enable `files.autoGuessEncoding` to prevent future issues
+4. Consider converting project files to UTF-8 for better compatibility
+
+For more details, see `ENCODING_COMPATIBILITY_ANALYSIS.md`.
+
 ### Server Logs
 
 The server logs its activity to `/tmp/pseint_lsp.log` for debugging purposes.

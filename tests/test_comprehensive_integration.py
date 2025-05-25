@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-Comprehensive test of the formatter with actual reference code.
-This tests the string formatting improvements to ensure they work correctly
+Comprehensive test of the formatter with actual reference code.    # Save the formatted result for manual inspection
+    with open('../formatted_reference_code1.psc', 'w', encoding='utf-8') as f:
+        f.write(formatted_code)
+    print("\n📝 Formatted code saved to '../formatted_reference_code1.psc'")s tests the string formatting improvements to ensure they work correctly
 with the complex strings found in the reference PSeInt code.
 """
 
@@ -17,7 +19,7 @@ def test_full_reference_code():
     """Test the formatter with the complete reference_code1.psc file."""
     
     # Read the reference code
-    with open('reference_code/reference_code1.psc', 'r', encoding='utf-8') as f:
+    with open('../reference_code/reference_code1.psc', 'r', encoding='utf-8') as f:
         original_code = f.read()
     
     print("Testing formatter with complete reference_code1.psc...")

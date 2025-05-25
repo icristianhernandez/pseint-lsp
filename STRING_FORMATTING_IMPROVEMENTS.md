@@ -7,21 +7,25 @@ This update significantly improves the PSeInt formatter's handling of string lit
 ## Issues Fixed
 
 ### 1. **Whitespace Collapsing in Strings**
+
 - **Problem**: Multiple spaces inside strings were being collapsed to single spaces
 - **Example**: `"   Text   "` became `" Text "`
 - **Solution**: Implemented string-aware formatting that preserves internal whitespace
 
-### 2. **Operator Spacing in Strings** 
+### 2. **Operator Spacing in Strings**
+
 - **Problem**: The formatter was applying operator spacing rules inside strings
 - **Example**: `"x<-y+z"` became `"x <- y + z"`
 - **Solution**: Created helper functions that only apply formatting outside string literals
 
 ### 3. **Comma Spacing in Strings**
+
 - **Problem**: Commas inside strings were getting spaces added after them
 - **Example**: `"One,Two,Three"` became `"One, Two, Three"`
 - **Solution**: Protected string contents from punctuation formatting
 
 ### 4. **ASCII Art Preservation**
+
 - **Problem**: Complex ASCII art in strings was being mangled
 - **Example**: ASCII logos and visual elements were broken
 - **Solution**: Complete preservation of string content including special characters
