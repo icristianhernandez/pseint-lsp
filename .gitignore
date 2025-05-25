@@ -48,7 +48,6 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-tests/
 
 # Virtual environments
 .env
@@ -82,11 +81,3 @@ Thumbs.db
 *.tmp
 *.temp
 debug_*.py
-
-# Test files and directories
-test_*.py
-**/test_*.py
-tests/
-**/tests/
-*.test.py
-*test*.py
