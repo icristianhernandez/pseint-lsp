@@ -19,7 +19,10 @@ from lsprotocol.types import (
 )
 
 # Import the formatter function
-from .formatter import format_pseint_code
+try:
+    from .formatter import format_pseint_code
+except ImportError:
+    from formatter import format_pseint_code
 
 logging.basicConfig(level=logging.DEBUG, filename="/tmp/pseint_lsp.log")
 
