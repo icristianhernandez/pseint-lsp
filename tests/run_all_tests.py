@@ -31,8 +31,11 @@ def run_test_suite():
         ],
         "SubAlgoritmo Debug Tests": [
             "test_subalgoritmo_debug.py",
+            "test_subalgoritmo_debug_new.py",
             "test_subalgoritmo_verification.py",
-            "test_subalgoritmo_indent.py"
+            "test_subalgoritmo_verification_new.py",
+            "test_subalgoritmo_indent.py",
+            "test_subalgoritmo_indent_new.py"
         ],
         "String Formatting Tests": [
             "test_string_formatting.py"
@@ -47,7 +50,8 @@ def run_test_suite():
         ],
         "Encoding Compatibility": [
             "test_encoding_compatibility.py",
-            "test_encoding_investigation.py"
+            "test_encoding_investigation.py",
+            "test_encoding_issue.py"
         ]
     }
     
