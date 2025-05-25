@@ -15,7 +15,7 @@ def test_encoding_compatibility():
     print("=== PSeInt Encoding Compatibility Test ===\n")
     
     # Test with reference_code3.psc (ISO-8859-1)
-    file_path = '../reference_code/reference_code3.psc'
+    file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'reference_code', 'reference_code3.psc')
     
     print("1. Testing UTF-8 reading:")
     try:

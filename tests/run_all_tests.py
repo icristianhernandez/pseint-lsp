@@ -29,6 +29,11 @@ def run_test_suite():
             "test_formatter.py",
             "test_edge_cases.py"
         ],
+        "SubAlgoritmo Debug Tests": [
+            "test_subalgoritmo_debug.py",
+            "test_subalgoritmo_verification.py",
+            "test_subalgoritmo_indent.py"
+        ],
         "String Formatting Tests": [
             "test_string_formatting.py"
         ],

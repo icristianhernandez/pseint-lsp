@@ -49,7 +49,7 @@ Proceso Test
 FinProceso
 """
         result = format_pseint_code(input_code)
-        self.assertIn('He said: "Hello world"', result)
+        self.assertIn('He said: \\"Hello world\\"', result)
         self.assertIn('She replied: "How are you?"', result)
 
     def test_very_long_lines(self):

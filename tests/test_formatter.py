@@ -414,6 +414,82 @@ FinFuncion
 """
         self.assertFormattedCode(input_code, expected_code_after_formatter_update)
 
+    def test_indentation_subalgoritmo_basic(self):
+        """Test basic SubAlgoritmo indentation"""
+        input_code = """
+SubAlgoritmo calcular()
+Escribir "Calculando..."
+x <- 5 + 3
+Escribir x
+FinSubAlgoritmo
+"""
+        expected_code = """
+SubAlgoritmo calcular()
+    Escribir "Calculando..."
+    x <- 5 + 3
+    Escribir x
+FinSubAlgoritmo
+"""
+        self.assertFormattedCode(input_code, expected_code)
+
+    def test_indentation_subalgoritmo_nested(self):
+        """Test SubAlgoritmo with nested Para loop"""
+        input_code = """
+SubAlgoritmo demo()
+Definir i Como Entero
+Para i <- 1 Hasta 10 Hacer
+Escribir i
+FinPara
+Escribir "Tabla completa"
+FinSubAlgoritmo
+"""
+        expected_code = """
+SubAlgoritmo demo()
+    Definir i Como Entero
+    Para i <- 1 Hasta 10 Hacer
+        Escribir i
+    FinPara
+    Escribir "Tabla completa"
+FinSubAlgoritmo
+"""
+        self.assertFormattedCode(input_code, expected_code)
+
+    def test_indentation_subalgoritmo_user_example(self):
+        """Test SubAlgoritmo with the user's specific battleship example"""
+        input_code = """
+SubAlgoritmo mostrarTableroJugador(matrizJugador Por Referencia)
+Definir i, j, filaNumeros Como Entero;
+Definir columnaLetras Como Cadena;
+columnaLetras <- " ABCDEFGHIJ";
+Para i <- 0 Hasta 9 Con Paso 1 Hacer
+filaNumeros[i] <- i + 1;
+FinPara
+Escribir "Este es tu tablero";
+Para i <- 0 Hasta 10 Con Paso 1 Hacer
+Escribir "";
+esJugador <- Verdadero;
+FinPara
+Leer tecla;
+FinSubAlgoritmo
+"""
+        expected_code = """
+SubAlgoritmo mostrarTableroJugador(matrizJugador Por Referencia)
+    Definir i, j, filaNumeros Como Entero;
+    Definir columnaLetras Como Cadena;
+    columnaLetras <- " ABCDEFGHIJ";
+    Para i <- 0 Hasta 9 Con Paso 1 Hacer
+        filaNumeros[i] <- i + 1;
+    FinPara
+    Escribir "Este es tu tablero";
+    Para i <- 0 Hasta 10 Con Paso 1 Hacer
+        Escribir "";
+        esJugador <- Verdadero;
+    FinPara
+    Leer tecla;
+FinSubAlgoritmo
+"""
+        self.assertFormattedCode(input_code, expected_code)
+
 
 if __name__ == "__main__":
     unittest.main()

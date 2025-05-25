@@ -19,7 +19,8 @@ def test_full_reference_code():
     """Test the formatter with the complete reference_code1.psc file."""
     
     # Read the reference code
-    with open('../reference_code/reference_code1.psc', 'r', encoding='utf-8') as f:
+    reference_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'reference_code', 'reference_code1.psc')
+    with open(reference_file, 'r', encoding='utf-8') as f:
         original_code = f.read()
     
     print("Testing formatter with complete reference_code1.psc...")

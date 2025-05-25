@@ -14,8 +14,10 @@ class TestPSeIntFormatterIntegration(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
+        # Set reference_files_dir to the correct reference_code directory
         self.reference_files_dir = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "reference_code"
         )
 
     def read_reference_file(self, filename: str) -> Optional[str]:
@@ -141,38 +143,37 @@ class TestPSeIntFormatterIntegration(unittest.TestCase):
                 formatted = format_pseint_code(content)
 
                 # Count control structure pairs to ensure they're preserved
+                # Count Si statements more accurately using regex to match word boundaries
+                import re
+                
                 original_counts = {
-                    "proceso": content.lower().count("proceso"),
-                    "finproceso": content.lower().count("finproceso"),
-                    "subproceso": content.lower().count("subproceso"),
-                    "finsubproceso": content.lower().count("finsubproceso"),
-                    "algoritmo": content.lower().count("algoritmo"),
-                    "finalgoritmo": content.lower().count("finalgoritmo"),
-                    "si": content.lower().count(
-                        " si "
-                    ),  # Add spaces to avoid matching inside other words
-                    "finsi": content.lower().count("finsi"),
-                    "mientras": content.lower().count("mientras"),
-                    "finmientras": content.lower().count("finmientras"),
-                    "para": content.lower().count(
-                        "para "
-                    ),  # Add space to avoid false matches
-                    "finpara": content.lower().count("finpara"),
+                    "proceso": len(re.findall(r'\bproceso\b', content, re.IGNORECASE)),
+                    "finproceso": len(re.findall(r'\bfinproceso\b', content, re.IGNORECASE)),
+                    "subproceso": len(re.findall(r'\bsubproceso\b', content, re.IGNORECASE)),
+                    "finsubproceso": len(re.findall(r'\bfinsubproceso\b', content, re.IGNORECASE)),
+                    "algoritmo": len(re.findall(r'\balgoritmo\b', content, re.IGNORECASE)),
+                    "finalgoritmo": len(re.findall(r'\bfinalgoritmo\b', content, re.IGNORECASE)),
+                    "si": len(re.findall(r'\bsi\b', content, re.IGNORECASE)),
+                    "finsi": len(re.findall(r'\bfinsi\b', content, re.IGNORECASE)),
+                    "mientras": len(re.findall(r'\bmientras\b', content, re.IGNORECASE)),
+                    "finmientras": len(re.findall(r'\bfinmientras\b', content, re.IGNORECASE)),
+                    "para": len(re.findall(r'\bpara\b', content, re.IGNORECASE)),
+                    "finpara": len(re.findall(r'\bfinpara\b', content, re.IGNORECASE)),
                 }
 
                 formatted_counts = {
-                    "proceso": formatted.lower().count("proceso"),
-                    "finproceso": formatted.lower().count("finproceso"),
-                    "subproceso": formatted.lower().count("subproceso"),
-                    "finsubproceso": formatted.lower().count("finsubproceso"),
-                    "algoritmo": formatted.lower().count("algoritmo"),
-                    "finalgoritmo": formatted.lower().count("finalgoritmo"),
-                    "si": formatted.lower().count(" si "),
-                    "finsi": formatted.lower().count("finsi"),
-                    "mientras": formatted.lower().count("mientras"),
-                    "finmientras": formatted.lower().count("finmientras"),
-                    "para": formatted.lower().count("para "),
-                    "finpara": formatted.lower().count("finpara"),
+                    "proceso": len(re.findall(r'\bproceso\b', formatted, re.IGNORECASE)),
+                    "finproceso": len(re.findall(r'\bfinproceso\b', formatted, re.IGNORECASE)),
+                    "subproceso": len(re.findall(r'\bsubproceso\b', formatted, re.IGNORECASE)),
+                    "finsubproceso": len(re.findall(r'\bfinsubproceso\b', formatted, re.IGNORECASE)),
+                    "algoritmo": len(re.findall(r'\balgoritmo\b', formatted, re.IGNORECASE)),
+                    "finalgoritmo": len(re.findall(r'\bfinalgoritmo\b', formatted, re.IGNORECASE)),
+                    "si": len(re.findall(r'\bsi\b', formatted, re.IGNORECASE)),
+                    "finsi": len(re.findall(r'\bfinsi\b', formatted, re.IGNORECASE)),
+                    "mientras": len(re.findall(r'\bmientras\b', formatted, re.IGNORECASE)),
+                    "finmientras": len(re.findall(r'\bfinmientras\b', formatted, re.IGNORECASE)),
+                    "para": len(re.findall(r'\bpara\b', formatted, re.IGNORECASE)),
+                    "finpara": len(re.findall(r'\bfinpara\b', formatted, re.IGNORECASE)),
                 }
 
                 # Verify counts match (allowing for some flexibility due to spacing changes)

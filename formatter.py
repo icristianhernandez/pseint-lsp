@@ -23,6 +23,9 @@ def format_pseint_code(code_string: str) -> str:
     formatted_lines: List[str] = []
     indentation_level: int = 0
     indent_size: int = 4
+    
+    # Special state tracking for Segun/Caso structures
+    segun_level_stack: List[int] = []  # Track indentation levels where Segun starts
 
     # --- Keyword Categorization for Indentation and Casing ---
     all_keywords_list: List[str] = [
@@ -30,6 +33,8 @@ def format_pseint_code(code_string: str) -> str:
         "FinProceso",
         "SubProceso",
         "FinSubProceso",
+        "SubAlgoritmo",
+        "FinSubAlgoritmo",
         "Algoritmo",
         "FinAlgoritmo",
         "Funcion",
@@ -75,6 +80,7 @@ def format_pseint_code(code_string: str) -> str:
     indent_starters: Set[str] = {
         "proceso",
         "subproceso",
+        "subalgoritmo",
         "algoritmo",
         "funcion",
         "si",
@@ -89,6 +95,7 @@ def format_pseint_code(code_string: str) -> str:
     indent_enders: Set[str] = {
         "finproceso",
         "finsubproceso",
+        "finsubalgoritmo",
         "finalgoritmo",
         "finfuncion",
         "finsi",
@@ -99,7 +106,10 @@ def format_pseint_code(code_string: str) -> str:
     }
     # Keywords that are like an "else if" or "case" - they terminate a previous block segment at the same level
     # and start a new one. They are placed at the outer level, and then indent their body.
-    indent_mid_transitions: Set[str] = {"sino", "de otro modo", "caso"}
+    indent_mid_transitions: Set[str] = {"sino", "de otro modo"}
+    
+    # Caso statements are handled specially - they're inside Segun blocks and should indent from Segun level
+    segun_case_keywords: Set[str] = {"caso"}
 
     # --- Helper for Indentation Keyword Matching ---
     def get_keyword_starting_line(
@@ -264,13 +274,21 @@ def format_pseint_code(code_string: str) -> str:
                     # Apply keyword spacing to this segment
                     for kw_proper in all_keywords_lower_to_proper_case.values():
                         if kw_proper not in ["MOD"]:
-                            segment = re.sub(
-                                r"\b("
-                                + re.escape(kw_proper)
-                                + r")\b(?!\s|[\(\,\:])(?=\S)",
-                                r"\1 ",
-                                segment,
-                            )
+                            # Check if segment ends with keyword and next char is a quote
+                            if (i < len(text) and text[i] in ['"', "'"] and 
+                                segment.endswith(kw_proper) and 
+                                (len(segment) == len(kw_proper) or not segment[-len(kw_proper)-1].isalnum())):
+                                # Add space before the upcoming quote
+                                segment = segment[:-len(kw_proper)] + kw_proper + " "
+                            else:
+                                # Normal regex processing for other cases
+                                segment = re.sub(
+                                    r"\b("
+                                    + re.escape(kw_proper)
+                                    + r")\b(?!\s|[\(\,\:])(?=\S)",
+                                    r"\1 ",
+                                    segment,
+                                )
 
                     result.append(segment)
 
@@ -501,16 +519,42 @@ def format_pseint_code(code_string: str) -> str:
         matched_mid_transition: Optional[str] = get_keyword_starting_line(
             effective_code_lower, indent_mid_transitions
         )
+        matched_caso: Optional[str] = get_keyword_starting_line(
+            effective_code_lower, segun_case_keywords
+        )
+        matched_segun: Optional[str] = get_keyword_starting_line(
+            effective_code_lower, {"segun"}
+        )
+        matched_finsegun: Optional[str] = get_keyword_starting_line(
+            effective_code_lower, {"finsegun"}
+        )
 
-        if matched_ender:
+        # Handle Segun block tracking
+        if matched_segun:
+            # Starting a new Segun block - track the current level
+            segun_level_stack.append(indentation_level)
+        elif matched_finsegun and segun_level_stack:
+            # Ending a Segun block - restore indentation level to Segun level
+            segun_start_level = segun_level_stack.pop()
+            indentation_level = segun_start_level
+
+        if matched_finsegun:
+            # FinSegun should be at the same level as Segun - already handled above
+            current_indent_str = " " * indentation_level * indent_size
+        elif matched_ender:
             indentation_level = max(0, indentation_level - 1)
             current_indent_str = " " * indentation_level * indent_size
-
-            if matched_ender == "hasta que":
-                pass  # No special handling needed after removing the unused variable
-            elif matched_mid_transition:
-                indentation_level = max(0, indentation_level - 1)
-                current_indent_str = " " * indentation_level * indent_size
+        elif matched_mid_transition:
+            indentation_level = max(0, indentation_level - 1)
+            current_indent_str = " " * indentation_level * indent_size
+        elif matched_caso and segun_level_stack:
+            # Caso statements should be at Segun level + 1, not current level
+            caso_level = segun_level_stack[-1] + 1
+            current_indent_str = " " * caso_level * indent_size
+            # Reset indentation level to maintain consistency for subsequent statements
+            indentation_level = caso_level
+        else:
+            current_indent_str = " " * indentation_level * indent_size
 
         final_line_to_add: str
         if not original_main_code_part_for_indent_logic and comment_text:
@@ -523,6 +567,8 @@ def format_pseint_code(code_string: str) -> str:
         keyword_causing_next_indent: Optional[str] = None
         if matched_mid_transition:
             keyword_causing_next_indent = matched_mid_transition
+        elif matched_caso:
+            keyword_causing_next_indent = matched_caso
         else:
             if not matched_ender:
                 keyword_causing_next_indent = get_keyword_starting_line(
