@@ -1,4 +1,7 @@
+#!/usr/bin/env python3
 import logging
+import sys
+from pathlib import Path
 from typing import List, Optional
 
 from pygls.server import LanguageServer
@@ -17,6 +20,11 @@ from lsprotocol.types import (
     TextDocumentSyncKind,
     TextEdit,
 )
+
+# Ensure we can import from the current directory
+script_dir = Path(__file__).parent.absolute()
+if str(script_dir) not in sys.path:
+    sys.path.insert(0, str(script_dir))
 
 # Import the formatter function
 try:

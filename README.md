@@ -13,11 +13,11 @@ A Language Server Protocol (LSP) server for the PSeInt programming language, imp
     * `pip` (Python package installer)
 
 2. **Setup**:
-    * Clone this repository (or ensure the `pseint_lsp_py` directory is available).
-    * Navigate to the `pseint_lsp_py` directory:
+    * Clone this repository (or ensure the `pseint-lsp` directory is available).
+    * Navigate to the `pseint-lsp` directory:
 
         ```bash
-        cd pseint_lsp_py
+        cd pseint-lsp
         ```
 
     * Create a Python virtual environment (recommended):
@@ -38,87 +38,249 @@ A Language Server Protocol (LSP) server for the PSeInt programming language, imp
 The server uses standard input/output to communicate with the LSP client. It can be run directly:
 
 ```bash
-python server.py
+python launch.py
 ```
 
 Most LSP clients will manage the execution of the server based on the configuration.
 
 ## Neovim Integration
 
-To integrate this LSP server with Neovim, you can use the built-in `vim.lsp.start()` API. This provides a direct way to configure the server.
+To integrate this LSP server with Neovim, you can use the modern `vim.lsp.config()` and `vim.lsp.enable()` API. This provides a cleaner and more maintainable way to configure the server.
+
+### Modern Configuration (Recommended)
+
+You can configure the PSeInt LSP in two ways:
+
+#### Option 1: In your main configuration (init.lua)
+
+Place this in your Neovim Lua configuration (e.g., `init.lua` or a dedicated `lsp.lua`):
 
 ```lua
--- Direct Neovim LSP setup
--- Place this in your Neovim Lua configuration (e.g., init.lua or a dedicated lsp.lua)
+-- Configure PSeInt LSP client
+-- IMPORTANT: Update the cmd path to the actual location of launch.py in your system!
+-- Make sure to use the Python executable from the virtual environment where pygls is installed
+vim.lsp.config('pseint-lsp', {
+  cmd = { '/path/to/your/project/pseint-lsp/.venv/bin/python', '/path/to/your/project/pseint-lsp/launch.py' },
+  filetypes = { 'pseint' },
+  root_markers = { '.git', 'proyecto.psc' }, -- Look for git repos or main project files
+  name = 'pseint-lsp',
+})
 
--- Define how to start the PSeInt LSP server
--- IMPORTANT: Update this path to the actual location of server.py in your system!
-local pseint_lsp_cmd = {'python', '/path/to/your/project/pseint_lsp_py/server.py'} 
+-- Set up filetype detection for .psc files
+vim.filetype.add({
+  extension = {
+    psc = 'pseint',
+  },
+})
 
--- Function to be called when the LSP client attaches to a buffer
-local on_attach_pseint = function(client, bufnr)
-  vim.notify("PSeInt LSP Attached to buffer: " .. bufnr, vim.log.levels.INFO)
-  -- Example: Enable formatting keymap
-  local map_opts = { buffer = bufnr, desc = "Format PSeInt file" }
-  vim.keymap.set('n', '<leader>lf', vim.lsp.buf.format, map_opts)
+-- Enable the LSP client
+vim.lsp.enable('pseint-lsp')
 
-  -- You can add other buffer-local settings or keymaps here
-  -- For example, if you want to set up formatting on save:
-  -- if client.supports_method("textDocument/formatting") then
-  --   vim.api.nvim_create_autocmd('BufWritePre', {
-  --     group = vim.api.nvim_create_augroup('PSeIntLspFormatOnSave', { clear = true }),
-  --     buffer = bufnr,
-  --     callback = function() vim.lsp.buf.format({ bufnr = bufnr, timeout_ms = 500 }) end
-  --   })
-  -- end
-end
+-- Optional: Configure LSP behavior and keymaps on attach
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('pseint-lsp-attach', { clear = true }),
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    local bufnr = args.buf
+    
+    -- Only apply to PSeInt LSP
+    if client and client.name == 'pseint-lsp' then
+      vim.notify("PSeInt LSP attached to buffer " .. bufnr, vim.log.levels.INFO)
+      
+      -- Set up buffer-local keymaps for LSP functions
+      local map = function(mode, lhs, rhs, desc)
+        vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = 'LSP: ' .. desc })
+      end
+      
+      -- Format keybinding (if the server supports formatting)
+      if client:supports_method('textDocument/formatting') then
+        map('n', '<leader>lf', vim.lsp.buf.format, 'Format document')
+        
+        -- Optional: Auto-format on save
+        vim.api.nvim_create_autocmd('BufWritePre', {
+          group = vim.api.nvim_create_augroup('pseint-lsp-format-on-save', { clear = false }),
+          buffer = bufnr,
+          callback = function()
+            vim.lsp.buf.format({ bufnr = bufnr, timeout_ms = 1000 })
+          end,
+        })
+      end
+      
+      -- Additional LSP keymaps using Neovim's default bindings
+      -- These are already available by default but you can customize them:
+      -- map('n', 'grn', vim.lsp.buf.rename, 'Rename symbol')
+      -- map('n', 'gra', vim.lsp.buf.code_action, 'Code action')
+      -- map('n', 'grr', vim.lsp.buf.references, 'Show references')
+      -- map('n', 'gd', vim.lsp.buf.definition, 'Go to definition')
+      -- map('n', 'K', vim.lsp.buf.hover, 'Hover documentation')
+    end
+  end,
+})
+```
+
+#### Option 2: Using a dedicated LSP configuration file
+
+Alternatively, you can create a file at `~/.config/nvim/lsp/pseint-lsp.lua` (matching the client name). This file will be automatically loaded by Neovim:
+
+**File: `~/.config/nvim/lsp/pseint-lsp.lua`**
+
+```lua
+-- This file is automatically loaded by Neovim's LSP system
+-- IMPORTANT: Update the cmd path to the actual location of launch.py in your system!
+-- Make sure to use the Python executable from the virtual environment where pygls is installed
+return {
+  cmd = { '/path/to/your/project/pseint-lsp/.venv/bin/python', '/path/to/your/project/pseint-lsp/launch.py' },
+  filetypes = { 'pseint' },
+  root_markers = { '.git', 'proyecto.psc' },
+  name = 'pseint-lsp',
+}
+```
+
+**Then in your `init.lua`, you only need:**
+
+```lua
+-- Set up filetype detection
+vim.filetype.add({
+  extension = {
+    psc = 'pseint',
+  },
+})
+
+-- Enable the LSP (the configuration will be loaded from lsp/pseint-lsp.lua)
+vim.lsp.enable('pseint-lsp')
+
+-- Optional: Configure LSP behavior and keymaps on attach
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('pseint-lsp-attach', { clear = true }),
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    local bufnr = args.buf
+    
+    -- Only apply to PSeInt LSP
+    if client and client.name == 'pseint-lsp' then
+      vim.notify("PSeInt LSP attached to buffer " .. bufnr, vim.log.levels.INFO)
+      
+      -- Set up buffer-local keymaps for LSP functions
+      local map = function(mode, lhs, rhs, desc)
+        vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = 'LSP: ' .. desc })
+      end
+      
+      -- Format keybinding (if the server supports formatting)
+      if client:supports_method('textDocument/formatting') then
+        map('n', '<leader>lf', vim.lsp.buf.format, 'Format document')
+        
+        -- Optional: Auto-format on save
+        vim.api.nvim_create_autocmd('BufWritePre', {
+          group = vim.api.nvim_create_augroup('pseint-lsp-format-on-save', { clear = false }),
+          buffer = bufnr,
+          callback = function()
+            vim.lsp.buf.format({ bufnr = bufnr, timeout_ms = 1000 })
+          end,
+        })
+      end
+    end
+  end,
+})
+```
+
+**Note:** When using this approach, the configuration in `lsp/pseint-lsp.lua` will be automatically merged with any global configuration defined with `vim.lsp.config('*', {...})`.
+
+### Complete Working Example
+
+For reference, here's a complete working configuration file that you can use as `~/.config/nvim/lsp/pseint-lsp.lua`:
+
+```lua
+-- Complete working configuration for PSeInt LSP
+-- Based on nvim-config-example.lua from the project
+return {
+    cmd = { "/home/crisarch/pseint-lsp/.venv/bin/python", "/home/crisarch/pseint-lsp/launch.py" },
+    filetypes = { "pseint" },
+    root_markers = { ".git", "proyecto.psc" },
+    name = "pseint-lsp",
+}
+```
+
+**Important Notes:**
+
+* Make sure to update the paths in the `cmd` field to match your actual installation directory
+* The Python path should point to the virtual environment where `pygls` is installed (`.venv/bin/python`)
+* The launch script path should point to `launch.py` in your project directory
+* Ensure you've installed the dependencies with `pip install -r requirements.txt` in the virtual environment
+
+**Note:** When using this approach, the configuration in `lsp/pseint-lsp.lua` will be automatically merged with any global configuration defined with `vim.lsp.config('*', {...})`.
+
+### Legacy Configuration (Alternative)
+
+If you prefer the older `vim.lsp.start()` approach or need more control:
+
+```lua
+-- Set up filetype detection first
+vim.filetype.add({
+  extension = {
+    psc = 'pseint',
+  },
+})
 
 -- Autocommand to start the LSP client for PSeInt files
 vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'pseint', -- Assumes .psc files are mapped to 'pseint' filetype
+  pattern = 'pseint',
   callback = function()
     vim.lsp.start({
-      name = 'pseint-lsp-py-direct', -- Unique name for this client instance
-      cmd = pseint_lsp_cmd,
-      -- root_dir can be customized. This is a basic example.
-      root_dir = vim.fs.root(0, {'.git'}) or vim.fn.expand('%:p:h'), 
-      on_attach = on_attach_pseint,
-      capabilities = vim.lsp.protocol.make_client_capabilities(), -- Use default client capabilities
-      -- filetypes = {'pseint', 'psc'} -- Redundant if using FileType autocommand on 'pseint'
+      name = 'pseint-lsp',
+      cmd = { 'python', '/path/to/your/project/pseint_lsp_py/server.py' },
+      root_dir = vim.fs.root(0, { '.git', 'proyecto.psc' }) or vim.fn.expand('%:p:h'),
     })
-  end
+  end,
 })
-
--- Ensure Neovim recognizes .psc files as 'pseint' filetype
--- (Add this if not already configured elsewhere in your Neovim setup)
--- vim.filetype.add({
---   extension = {
---     psc = 'pseint',
---   },
--- })
-
--- As an alternative to the FileType autocommand above, you can explicitly define the 'pseint' filetype
--- if it's not automatically detected or if you prefer a more direct mapping for .psc files:
--- vim.api.nvim_create_autocmd({"BufNewFile", "BufRead"}, {
---   pattern = "*.psc",
---   callback = function()
---     vim.bo.filetype = "pseint"
---     -- Now, the FileType autocommand for 'pseint' above will trigger.
---   end,
--- })
 ```
 
-**Important Notes for Manual Setup:**
+### Installation Notes
 
-* **Path to `server.py`**: Ensure the `pseint_lsp_cmd` variable in the Lua code correctly points to the absolute path of the `server.py` script within your cloned `pseint_lsp_py` directory.
-* **Filetype Detection**: For the `FileType` autocommand to work, Neovim must recognize `.psc` files as the `pseint` filetype. If this isn't happening automatically, uncomment and use the `vim.filetype.add` example or the `BufNewFile,BufRead` autocommand provided in the Lua snippet to set the filetype.
+* **Server Path**: Update the `cmd` field to point to the absolute path of the `server.py` script in your cloned directory.
+* **Configuration Location**: You can place the configuration either:
+  * Directly in your `init.lua` (Option 1)
+  * In a dedicated file `~/.config/nvim/lsp/pseint-lsp.lua` (Option 2) - this file will be automatically loaded by Neovim
+* **Dependencies**: Ensure Python and the required packages (from `requirements.txt`) are installed and accessible.
+* **Root Directory**: The LSP server will use the directory containing `.git` or `proyecto.psc` files as the project root. Adjust `root_markers` as needed.
+* **Default Keymaps**: Neovim provides default LSP keymaps:
+  * `grn` - Rename symbol
+  * `gra` - Code action  
+  * `grr` - Show references
+  * `gri` - Go to implementation
+  * `gd` - Go to definition (via `tagfunc`)
+  * `K` - Hover documentation
+  * `gO` - Document symbols
+  * `CTRL-S` (insert mode) - Signature help
 
 ## Usage
 
 Once installed and configured with your editor (e.g., Neovim), the formatting capability should be available.
 
-* In Neovim, with the example setup above, you can format the current PSeInt file using the keymap `<leader>lf` (or by directly calling `vim.lsp.buf.format()`).
-* The server will log its activity to `/tmp/pseint_lsp.log`.
+### In Neovim
+
+With the modern configuration setup above:
+
+* **Format document**: Use `<leader>lf` (if configured) or the default `gq` command
+* **Auto-format on save**: Automatically formats the file when saving (if enabled in config)
+* **Default LSP keymaps** (available automatically):
+  * `grn` - Rename symbol under cursor
+  * `gra` - Show available code actions
+  * `grr` - Show all references to symbol
+  * `gri` - Go to implementation
+  * `gd` - Go to definition
+  * `K` - Show hover documentation
+  * `gO` - Show document symbols
+  * `CTRL-S` (insert mode) - Show signature help
+
+You can also call LSP functions directly:
+
+* `:lua vim.lsp.buf.format()` - Format current buffer
+* `:LspInfo` - Show LSP client status
+* `:checkhealth vim.lsp` - Check LSP health
+
+### Server Logs
+
+The server logs its activity to `/tmp/pseint_lsp.log` for debugging purposes.
 
 ## Developer Information
 
