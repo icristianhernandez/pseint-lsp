@@ -1,5 +1,7 @@
 import unittest
-import os # To potentially load reference files if needed, though embedding is safer here.
+import sys
+import os
+from typing import Optional
 
 # Adjust import path if your test runner needs it,
 # assuming tests are run from the root of the 'pseint_lsp_py' directory or configured for src layout.
@@ -11,22 +13,24 @@ import os # To potentially load reference files if needed, though embedding is s
 # but for a single file, direct import from the parent module is often fine if structure allows.
 
 # If `pseint_lsp_py` is in PYTHONPATH or the test is run with `python -m unittest discover pseint_lsp_py`:
-from pseint_lsp_py.formatter import format_pseint_code
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from formatter import format_pseint_code
 
 
 class TestPSeIntFormatter(unittest.TestCase):
-
-    def assertFormattedCode(self, input_code, expected_code, msg=None):
+    def assertFormattedCode(
+        self, input_code: str, expected_code: str, msg: Optional[str] = None
+    ) -> None:
         # Helper to strip leading/trailing whitespace from each line for comparison,
         # and ignore completely blank lines at the start/end of the whole string.
         # This makes comparisons less brittle to minor whitespace variations in test definitions.
-        
+
         formatted = format_pseint_code(input_code).strip()
         expected = expected_code.strip()
 
         formatted_lines = [line.strip() for line in formatted.splitlines()]
         expected_lines = [line.strip() for line in expected.splitlines()]
-        
+
         # Remove leading/trailing blank lines from the list of lines
         while formatted_lines and not formatted_lines[0]:
             formatted_lines.pop(0)
@@ -105,7 +109,6 @@ FinProceso
 """
         self.assertFormattedCode(input_code, expected_code)
 
-
     def test_indentation_para(self):
         input_code = """
 Proceso TablaDel5
@@ -156,7 +159,7 @@ Proceso DiaSemana
 FinProceso
 """
         self.assertFormattedCode(input_code, expected_code)
-        
+
     def test_indentation_repetir(self):
         input_code = """
 Proceso Clave
@@ -271,7 +274,6 @@ FinAlgoritmo
 """
         self.assertFormattedCode(input_code, expected_code)
 
-
     def test_from_formatter_sample(self):
         input_code = """
 Proceso   SUMA
@@ -384,7 +386,6 @@ FinSegun
 """
         self.assertFormattedCode(input_code, expected_code)
 
-
     def test_funcion_definition(self):
         # From reference_code3.psc
         input_code = """
@@ -414,5 +415,5 @@ FinFuncion
         self.assertFormattedCode(input_code, expected_code_after_formatter_update)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
