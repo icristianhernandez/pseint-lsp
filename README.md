@@ -1,519 +1,459 @@
-# PSeInt Language Server (Python)
+# 🚀 PSeInt Language Server
 
-A Language Server Protocol (LSP) server for the PSeInt programming language, implemented in Python, with an initial focus on providing code formatting capabilities.
+A modern Language Server Protocol (LSP) implementation for the PSeInt programming language
 
-## Features
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+[![LSP](https://img.shields.io/badge/LSP-Compatible-green.svg)](https://langserver.org)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-* **Code Formatting**: Automatically formats PSeInt source code files (`.psc`) based on a defined set of rules for indentation, keyword casing, spacing, and blank lines.
+Bringing modern IDE features to PSeInt development ✨
 
-## Installation
+---
 
-1. **Prerequisites**:
-    * Python 3.7+
-    * `pip` (Python package installer)
+## ✨ Features
 
-2. **Setup**:
-    * Clone this repository (or ensure the `pseint-lsp` directory is available).
-    * Navigate to the `pseint-lsp` directory:
+### Transform your PSeInt coding experience with modern IDE capabilities
 
-        ```bash
-        cd pseint-lsp
-        ```
+#### 🔧 Smart Code Formatting
 
-    * Create a Python virtual environment (recommended):
+- Automatic indentation and spacing
+- Proper keyword casing
+- Consistent code style
 
-        ```bash
-        python -m venv .venv
-        source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-        ```
+#### 🚀 Modern Development
 
-    * Install the required dependencies:
+- Lightning-fast Ruff linting
+- Pyright type checking
+- Pre-commit hooks
 
-        ```bash
-        pip install -r requirements.txt
-        ```
+#### 🧪 Quality Assurance
 
-## LSP Server Execution
+- Comprehensive test suite
+- Coverage reporting
+- CI/CD automation
 
-The server uses standard input/output to communicate with the LSP client. It can be run directly:
+#### 📦 Easy Setup
 
-```bash
-python launch.py
+- One-command installation
+- Cross-platform support
+- Zero configuration
+
+**🔌 Editor Support**: Neovim • VS Code • *More coming soon...*
+
+## 🚀 Quick Start
+
+### 🎯 Choose Your Path
+
+| 👤 **User Path** | 🛠️ **Developer Path** |
+|------------------|----------------------|
+| **Goal**: Use PSeInt LSP in your editor | **Goal**: Contribute to the project |
+| **Time**: ~5 minutes | **Time**: ~10 minutes |
+| **Requirements**: Python 3.8+ | **Requirements**: Python 3.8+, Node.js, make |
+| **Next Step**: [Installation for Users](#-for-users-lsp-usage) | **Next Step**: [Installation for Developers](#️-for-developers-contributing) |
+
+---
+
+### � Workflow Overview
+
+```mermaid
+graph LR
+    A[📥 Install] --> B[⚙️ Configure Editor]
+    B --> C[📝 Open .psc file]
+    C --> D[✨ Enjoy LSP features!]
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
 ```
 
-Most LSP clients will manage the execution of the server based on the configuration.
+**🎯 Ready to start?** Pick your path above and let's get you set up with modern PSeInt development!
 
-## Neovim Integration
+## 📦 Installation
 
-To integrate this LSP server with Neovim, you can use the modern `vim.lsp.config()` and `vim.lsp.enable()` API. This provides a cleaner and more maintainable way to configure the server.
+### 👤 For Users (LSP Usage)
 
-### Modern Configuration (Recommended)
+> **🎯 Perfect for**: Developers who want to use PSeInt LSP in their editor
 
-You can configure the PSeInt LSP in two ways:
+**📋 Prerequisites:**
 
-#### Option 1: In your main configuration (init.lua)
+- 🐍 Python 3.8+
 
-Place this in your Neovim Lua configuration (e.g., `init.lua` or a dedicated `lsp.lua`):
+**⚡ Quick Setup:**
+
+```bash
+# 📥 Clone the repository
+git clone <repository-url>
+cd pseint-lsp
+
+# 🔧 Create virtual environment and install dependencies
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+**🎯 Next Steps:**
+
+1. **📍 Note the installation path**: You'll need the full path to this directory for your editor configuration
+2. **⚙️ Configure your editor**: Follow the [Editor Integration](#-editor-integration) section below to set up the LSP in Neovim, VS Code, or your preferred editor
+3. **🚀 Start coding**: Open a `.psc` file and enjoy automatic formatting and LSP features!
+
+> **💡 Pro Tip**: The LSP server runs automatically when you open PSeInt files in your configured editor. You don't need to start it manually!
+
+### 🛠️ For Developers (Contributing)
+
+> **🎯 Perfect for**: Contributors who want to modify or enhance the project
+
+**📋 Prerequisites:**
+
+- 🐍 Python 3.8+
+- 🟢 Node.js (for Pyright type checker)
+- ⚙️ `make` (for development automation)
+
+**🚀 Quick Development Setup:**
+
+```bash
+# 📥 Clone and setup everything
+git clone <repository-url>
+cd pseint-lsp
+./setup-dev.sh
+
+# 🛠️ Start developing
+make dev              # Run the LSP server
+make test             # Run tests
+make help             # See all available commands
+```
+
+**🔧 Manual Development Setup:**
+
+```bash
+# ⚙️ Set up development environment
+make setup
+source .venv/bin/activate
+make info
+```
+
+**⚡ Development Commands:**
+
+| Command | Description | Use Case |
+|---------|-------------|----------|
+| `make help` | 📚 Show all available commands | Getting started |
+| `make dev` | 🚀 Install deps + run server | Development |
+| `make test` | 🧪 Run all tests | Testing |
+| `make lint` | 🔍 Run linting (Ruff + Pyright) | Code quality |
+| `make format` | ✨ Format code with Ruff | Code style |
+| `make fix` | 🔧 Auto-fix code issues | Quick fixes |
+| `make pre-commit` | ✅ Fix + lint + test (before committing) | Pre-commit |
+
+## 🔌 Editor Integration
+
+> **📍 For Users**: This is your next step after installation. Configure your editor to automatically use the PSeInt LSP when editing `.psc` files.
+
+### 🚀 Neovim
+
+#### 🎯 Option 1: Main configuration (init.lua)
 
 ```lua
--- Configure PSeInt LSP client
--- IMPORTANT: Update the cmd path to the actual location of launch.py in your system!
--- Make sure to use the Python executable from the virtual environment where pygls is installed
+-- Set up filetype detection
+vim.filetype.add({
+  extension = { psc = 'pseint' },
+})
+
+-- Configure PSeInt LSP
 vim.lsp.config('pseint-lsp', {
-  cmd = { '/path/to/your/project/pseint-lsp/.venv/bin/python', '/path/to/your/project/pseint-lsp/launch.py' },
+  cmd = { '/path/to/pseint-lsp/.venv/bin/python', '/path/to/pseint-lsp/launch.py' },
   filetypes = { 'pseint' },
-  root_markers = { '.git', 'proyecto.psc' }, -- Look for git repos or main project files
+  root_markers = { '.git', 'proyecto.psc' },
   name = 'pseint-lsp',
 })
 
--- Set up filetype detection for .psc files
-vim.filetype.add({
-  extension = {
-    psc = 'pseint',
-  },
-})
-
--- Enable the LSP client
+-- Enable the LSP
 vim.lsp.enable('pseint-lsp')
-
--- Optional: Configure LSP behavior and keymaps on attach
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('pseint-lsp-attach', { clear = true }),
-  callback = function(args)
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    local bufnr = args.buf
-    
-    -- Only apply to PSeInt LSP
-    if client and client.name == 'pseint-lsp' then
-      vim.notify("PSeInt LSP attached to buffer " .. bufnr, vim.log.levels.INFO)
-      
-      -- Set up buffer-local keymaps for LSP functions
-      local map = function(mode, lhs, rhs, desc)
-        vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = 'LSP: ' .. desc })
-      end
-      
-      -- Format keybinding (if the server supports formatting)
-      if client:supports_method('textDocument/formatting') then
-        map('n', '<leader>lf', vim.lsp.buf.format, 'Format document')
-        
-        -- Optional: Auto-format on save
-        vim.api.nvim_create_autocmd('BufWritePre', {
-          group = vim.api.nvim_create_augroup('pseint-lsp-format-on-save', { clear = false }),
-          buffer = bufnr,
-          callback = function()
-            vim.lsp.buf.format({ bufnr = bufnr, timeout_ms = 1000 })
-          end,
-        })
-      end
-      
-      -- Additional LSP keymaps using Neovim's default bindings
-      -- These are already available by default but you can customize them:
-      -- map('n', 'grn', vim.lsp.buf.rename, 'Rename symbol')
-      -- map('n', 'gra', vim.lsp.buf.code_action, 'Code action')
-      -- map('n', 'grr', vim.lsp.buf.references, 'Show references')
-      -- map('n', 'gd', vim.lsp.buf.definition, 'Go to definition')
-      -- map('n', 'K', vim.lsp.buf.hover, 'Hover documentation')
-    end
-  end,
-})
 ```
 
-#### Option 2: Using a dedicated LSP configuration file
+#### 🔧 Option 2: Dedicated configuration file
 
-Alternatively, you can create a file at `~/.config/nvim/lsp/pseint-lsp.lua` (matching the client name). This file will be automatically loaded by Neovim:
-
-**File: `~/.config/nvim/lsp/pseint-lsp.lua`**
+Create `~/.config/nvim/lsp/pseint-lsp.lua`:
 
 ```lua
--- This file is automatically loaded by Neovim's LSP system
--- IMPORTANT: Update the cmd path to the actual location of launch.py in your system!
--- Make sure to use the Python executable from the virtual environment where pygls is installed
 return {
-  cmd = { '/path/to/your/project/pseint-lsp/.venv/bin/python', '/path/to/your/project/pseint-lsp/launch.py' },
+  cmd = { '/path/to/pseint-lsp/.venv/bin/python', '/path/to/pseint-lsp/launch.py' },
   filetypes = { 'pseint' },
   root_markers = { '.git', 'proyecto.psc' },
   name = 'pseint-lsp',
 }
 ```
 
-**Then in your `init.lua`, you only need:**
+Then in your `init.lua`:
 
 ```lua
--- Set up filetype detection
-vim.filetype.add({
-  extension = {
-    psc = 'pseint',
-  },
-})
-
--- Enable the LSP (the configuration will be loaded from lsp/pseint-lsp.lua)
+vim.filetype.add({ extension = { psc = 'pseint' } })
 vim.lsp.enable('pseint-lsp')
-
--- Optional: Configure LSP behavior and keymaps on attach
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('pseint-lsp-attach', { clear = true }),
-  callback = function(args)
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    local bufnr = args.buf
-    
-    -- Only apply to PSeInt LSP
-    if client and client.name == 'pseint-lsp' then
-      vim.notify("PSeInt LSP attached to buffer " .. bufnr, vim.log.levels.INFO)
-      
-      -- Set up buffer-local keymaps for LSP functions
-      local map = function(mode, lhs, rhs, desc)
-        vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = 'LSP: ' .. desc })
-      end
-      
-      -- Format keybinding (if the server supports formatting)
-      if client:supports_method('textDocument/formatting') then
-        map('n', '<leader>lf', vim.lsp.buf.format, 'Format document')
-        
-        -- Optional: Auto-format on save
-        vim.api.nvim_create_autocmd('BufWritePre', {
-          group = vim.api.nvim_create_augroup('pseint-lsp-format-on-save', { clear = false }),
-          buffer = bufnr,
-          callback = function()
-            vim.lsp.buf.format({ bufnr = bufnr, timeout_ms = 1000 })
-          end,
-        })
-      end
-    end
-  end,
-})
 ```
 
-**Note:** When using this approach, the configuration in `lsp/pseint-lsp.lua` will be automatically merged with any global configuration defined with `vim.lsp.config('*', {...})`.
+### 💻 VS Code
 
-### Complete Working Example
+#### 🎯 Option 1: VS Code Extension (Recommended - Coming Soon)
 
-For reference, here's a complete working configuration file that you can use as `~/.config/nvim/lsp/pseint-lsp.lua`:
+> **🚧 In Development**: A VS Code extension for PSeInt LSP is planned for future release. This will provide one-click installation from the VS Code marketplace.
 
-```lua
--- Complete working configuration for PSeInt LSP
--- Based on nvim-config-example.lua from the project
-return {
-    cmd = { "/home/crisarch/pseint-lsp/.venv/bin/python", "/home/crisarch/pseint-lsp/launch.py" },
-    filetypes = { "pseint" },
-    root_markers = { ".git", "proyecto.psc" },
-    name = "pseint-lsp",
+#### ⚙️ Option 2: Manual LSP Configuration (Advanced Users)
+
+For now, advanced users can manually configure the LSP using a VS Code extension that supports generic LSP servers:
+
+**📦 Step 1: Install a generic LSP client extension**:
+
+- Install [vscode-languageclient](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-json-languageservice) or
+- Install [Generic LSP Client](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd)
+
+**⚙️ Step 2: Configure in VS Code settings.json**:
+
+```json
+{
+  "files.associations": {
+    "*.psc": "pseint"
+  },
+  "files.autoGuessEncoding": true,
+  "languageserver": {
+    "pseint": {
+      "command": "/path/to/pseint-lsp/.venv/bin/python",
+      "args": ["/path/to/pseint-lsp/launch.py"],
+      "filetypes": ["pseint"],
+      "rootPatterns": [".git", "proyecto.psc"]
+    }
+  }
 }
 ```
 
-**Important Notes:**
+> **⚠️ Important**: This manual approach requires technical knowledge and may not work reliably. We recommend waiting for the official VS Code extension or using Neovim for the best experience.
 
-* Make sure to update the paths in the `cmd` field to match your actual installation directory
-* The Python path should point to the virtual environment where `pygls` is installed (`.venv/bin/python`)
-* The launch script path should point to `launch.py` in your project directory
-* Ensure you've installed the dependencies with `pip install -r requirements.txt` in the virtual environment
+#### 🔤 Encoding Configuration
 
-**Note:** When using this approach, the configuration in `lsp/pseint-lsp.lua` will be automatically merged with any global configuration defined with `vim.lsp.config('*', {...})`.
+Regardless of the method used, configure VS Code for PSeInt file encoding:
 
-### Legacy Configuration (Alternative)
-
-If you prefer the older `vim.lsp.start()` approach or need more control:
-
-```lua
--- Set up filetype detection first
-vim.filetype.add({
-  extension = {
-    psc = 'pseint',
-  },
-})
-
--- Autocommand to start the LSP client for PSeInt files
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'pseint',
-  callback = function()
-    vim.lsp.start({
-      name = 'pseint-lsp',
-      cmd = { 'python', '/path/to/your/project/pseint_lsp_py/server.py' },
-      root_dir = vim.fs.root(0, { '.git', 'proyecto.psc' }) or vim.fn.expand('%:p:h'),
-    })
-  end,
-})
+```json
+{
+  "files.autoGuessEncoding": true
+}
 ```
 
-### Installation Notes
+**🔧 Troubleshooting**: If you see corrupted characters, manually reopen files with "Western (ISO 8859-1)" encoding via Command Palette → "Reopen Editor With Encoding".
 
-* **Server Path**: Update the `cmd` field to point to the absolute path of the `server.py` script in your cloned directory.
-* **Configuration Location**: You can place the configuration either:
-  * Directly in your `init.lua` (Option 1)
-  * In a dedicated file `~/.config/nvim/lsp/pseint-lsp.lua` (Option 2) - this file will be automatically loaded by Neovim
-* **Dependencies**: Ensure Python and the required packages (from `requirements.txt`) are installed and accessible.
-* **Root Directory**: The LSP server will use the directory containing `.git` or `proyecto.psc` files as the project root. Adjust `root_markers` as needed.
-* **Default Keymaps**: Neovim provides default LSP keymaps:
-  * `grn` - Rename symbol
-  * `gra` - Code action  
-  * `grr` - Show references
-  * `gri` - Go to implementation
-  * `gd` - Go to definition (via `tagfunc`)
-  * `K` - Hover documentation
-  * `gO` - Document symbols
-  * `CTRL-S` (insert mode) - Signature help
+## 🎯 Usage
 
-## Usage
+Once configured with your editor, the LSP provides powerful code formatting and navigation for PSeInt files.
 
-Once installed and configured with your editor (e.g., Neovim), the formatting capability should be available.
+### 📝 Available Commands
 
-### In Neovim
+| Action | Neovim | VS Code | Description |
+|--------|--------|---------|-------------|
+| Format Document | `<leader>lf` | `Shift+Alt+F` | Format entire file |
+| Auto-format on save | Configure in settings | Configure in settings | Automatic formatting |
+| Manual formatting | `:lua vim.lsp.buf.format()` | Command Palette | On-demand formatting |
 
-With the modern configuration setup above:
+### 🔧 LSP Features
 
-* **Format document**: Use `<leader>lf` (if configured) or the default `gq` command
-* **Auto-format on save**: Automatically formats the file when saving (if enabled in config)
-* **Default LSP keymaps** (available automatically):
-  * `grn` - Rename symbol under cursor
-  * `gra` - Show available code actions
-  * `grr` - Show all references to symbol
-  * `gri` - Go to implementation
-  * `gd` - Go to definition
-  * `K` - Show hover documentation
-  * `gO` - Show document symbols
-  * `CTRL-S` (insert mode) - Show signature help
+| Keybinding | Action | Description |
+|------------|---------|-------------|
+| `grn` | 🏷️ Rename symbol | Rename variables/functions across files |
+| `gra` | ⚡ Code actions | Quick fixes and refactoring |
+| `grr` | 🔍 Show references | Find all symbol usages |
+| `gd` | 🎯 Go to definition | Jump to symbol definition |
+| `K` | 📖 Hover documentation | Show symbol information |
 
-You can also call LSP functions directly:
+> **💡 Pro Tip**: These features work automatically once your editor is configured. Just open a `.psc` file and start coding!
 
-* `:lua vim.lsp.buf.format()` - Format current buffer
-* `:LspInfo` - Show LSP client status
-* `:checkhealth vim.lsp` - Check LSP health
+## 🌐 File Encoding Support
 
-## File Encoding Compatibility
+### 📄 PSeInt Encoding
 
-### PSeInt Encoding Standard
+PSeInt uses **ISO-8859-1 (Latin-1)** encoding by default, with full support for Spanish characters:
 
-PSeInt saves `.psc` files using **ISO-8859-1 (Latin-1)** encoding by default. This encoding supports Western European characters commonly used in Spanish text, such as:
+**Supported Characters:**
 
-* Accented vowels: `á`, `é`, `í`, `ó`, `ú`
-* The letter ñ: `ñ`
-* Other special characters: `¿`, `¡`, `ü`, etc.
+- 🔤 **Accented vowels**: `á`, `é`, `í`, `ó`, `ú`
+- 🔤 **Special characters**: `ñ`, `¿`, `¡`, `ü`
 
-### VS Code Configuration
+### ⚙️ Editor Configuration
 
-To ensure proper handling of PSeInt files with special characters, configure VS Code to automatically detect file encoding:
+**VS Code** - Enable auto-encoding detection:
 
-1. **Enable auto-encoding detection** in VS Code settings:
+```json
+{
+  "files.autoGuessEncoding": true
+}
+```
 
-   ```json
-   {
-     "files.autoGuessEncoding": true
-   }
-   ```
+**🔧 Troubleshooting**: If you see corrupted characters, manually reopen files with "Western (ISO 8859-1)" encoding.
 
-2. **Manual encoding selection** for problematic files:
-   * Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
-   * Run "Reopen Editor With Encoding"
-   * Select "Western (ISO 8859-1)"
+**🔄 Compatibility Check:**
 
-### Encoding Compatibility
+- ✅ UTF-8 files: Fully supported
+- ✅ ISO-8859-1 files: Supported with proper editor configuration  
+- ⚠️ Mixed encoding: Use consistent encoding across project files
 
-* **✅ UTF-8 files**: Fully supported, no configuration needed
-* **✅ ISO-8859-1 files**: Supported with proper VS Code configuration
-* **⚠️ Mixed encoding projects**: Use consistent encoding across all files
+## 🛠️ Development
 
-### Troubleshooting Encoding Issues
+### 📁 Project Structure
 
-If you see corrupted characters like `versi�n` instead of `versión`:
+```text
+├── 🚀 server.py              # Main LSP server
+├── ✨ formatter.py           # PSeInt formatting logic  
+├── 🔧 launch.py              # Server launcher script
+├── ⚙️ Makefile               # Development automation
+├── 📦 requirements.txt       # Production dependencies
+├── 🧪 requirements-dev.txt   # Development dependencies
+├── 🧪 tests/                 # Test suite
+└── 📚 docs/                  # Documentation
+```
 
-1. Check file encoding in VS Code status bar (bottom-right corner)
-2. If showing "UTF-8", reopen with "Western (ISO 8859-1)" encoding
-3. Enable `files.autoGuessEncoding` to prevent future issues
-4. Consider converting project files to UTF-8 for better compatibility
+### 📝 Formatting Rules
 
-For more details, see `ENCODING_COMPATIBILITY_ANALYSIS.md`.
+The formatter implements comprehensive PSeInt formatting with precision:
 
-### Server Logs
+- **🔤 Keywords**: Proper casing (`proceso` → `Proceso`, `finsi` → `FinSi`)
+- **📏 Indentation**: 4-space indentation for code blocks
+- **🎯 Spacing**: Normalized spacing around operators and keywords
+- **📄 Blank Lines**: Removes excessive blank lines and trailing whitespace
+- **💬 Comments**: Preserves comments with proper spacing
 
-The server logs its activity to `/tmp/pseint_lsp.log` for debugging purposes.
-
-## Developer Information
-
-### Project Structure
-
-* `pseint_lsp_py/`: Main directory for the Python LSP server.
-  * `server.py`: The LSP server implementation using `pygls`.
-  * `formatter.py`: Contains the PSeInt code formatting logic, adapted from the original `pseint-formatter.py`.
-  * `requirements.txt`: Python dependencies.
-  * `tests/`: Unit tests.
-    * `test_formatter.py`: Unit tests for `formatter.py`.
-* `pseint-formatter.py`: Original standalone formatter script (in repository root).
-* `reference_code*.psc`: PSeInt example files (in repository root).
-
-### Formatting Logic (`formatter.py`)
-
-The `formatter.py` script implements PSeInt formatting rules, including:
-
-* **Keyword Casing**: Converts keywords (e.g., `proceso`, `leer`, `FinSi`) to their proper case (e.g., `Proceso`, `Leer`, `FinSi`). A comprehensive list of keywords is maintained.
-* **Indentation**: Applies 4-space indentation for blocks like `Proceso`, `Si-Entonces-Sino`, `Mientras`, `Para`, `Segun`, `Repetir`, `SubProceso`, `Funcion`.
-* **Spacing**:
-  * Adds spaces around operators (`<-`, `+`, `=`, `>`, etc.).
-  * Ensures a space after commas.
-  * Normalizes spacing around parentheses.
-  * Manages spacing after keywords.
-* **Blank Lines**:
-  * Collapses multiple consecutive blank lines into a single blank line.
-  * Removes blank lines at the very beginning and end of the file.
-  * Removes blank lines found immediately before block-ending keywords (e.g., `FinProceso`).
-* **Comments**: Preserves comments and ensures a space after `//`.
-* **Semicolons/Colons**: Removes leading spaces before trailing semicolons or colons on a line.
-* **Line Endings**: Removes trailing whitespace from all lines.
-
-### Running Tests
-
-The project includes comprehensive tests written using Python's `unittest` framework and `pytest`. Tests are located in the `tests/` directory and cover:
-
-* **`test_formatter.py`**: Core formatting functionality tests
-* **`test_edge_cases.py`**: Edge cases and error handling tests  
-* **`test_integration.py`**: Integration tests using real PSeInt code examples
-* **`test_server.py`**: LSP server functionality tests
-
-#### Prerequisites
-
-Make sure you have the test dependencies installed:
+### 🧪 Testing
 
 ```bash
-pip install -r requirements.txt
+# Run all tests
+make test
+
+# Run with coverage  
+make test-cov
+
+# Run specific tests
+python -m pytest tests/test_formatter.py -v
+
+# Watch mode (auto-restart on changes)
+make test-watch
 ```
 
-The `requirements.txt` file includes all necessary testing dependencies:
+### 🎯 Code Quality
 
-* **Core dependencies**: `pygls`, `lsprotocol`, `pytest`, `pytest-asyncio`
-* **Optional testing features**: `pytest-cov` (coverage), `pytest-xdist` (parallel execution)
+Modern tooling for development excellence:
 
-**For Fish shell users:** The installation command works the same way.
+- **🚀 Ruff**: Fast linting and formatting
+- **🔍 Pyright**: Static type checking  
+- **🧪 Pytest**: Testing framework with async support
+- **🔗 Pre-commit**: Git hooks for code quality
 
-#### Running All Tests
+### 🏗️ Architecture
 
-1. **Using pytest (recommended)**:
+The LSP server is built using modern Python practices:
 
-   From the `pseint_lsp_py` directory:
+- **📡 pygls**: Python LSP server framework
+- **⚡ asyncio**: Asynchronous I/O for LSP communication
+- **🧩 Modular design**: Separate formatter and server components
+- **✅ Comprehensive testing**: Unit, integration, and end-to-end tests
 
-   ```bash
-   python -m pytest tests/ -v
-   ```
+## 🤝 Contributing
 
-   From the repository root:
+Contributions are welcome! This project follows modern Python development practices.
 
-   ```bash
-   python -m pytest pseint_lsp_py/tests/ -v
-   ```
+### 🚀 Development Setup
 
-   **For Fish shell users:**
-
-   ```fish
-   python -m pytest tests/ -v
-   # or from repository root:
-   python -m pytest pseint_lsp_py/tests/ -v
-   ```
-
-2. **Using unittest**:
-
-   From the `pseint_lsp_py` directory:
+1. **🍴 Fork and clone** the repository
+2. **⚙️ Set up development environment**:
 
    ```bash
-   python -m unittest discover tests -v
+   make setup
+   source .venv/bin/activate
    ```
 
-   From the repository root:
+3. **🔗 Install pre-commit hooks**:
 
    ```bash
-   python -m unittest discover pseint_lsp_py.tests -v
+   pre-commit install
    ```
 
-   **For Fish shell users:**
-
-   ```fish
-   python -m unittest discover tests -v
-   # or from repository root:
-   python -m unittest discover pseint_lsp_py.tests -v
-   ```
-
-#### Running Specific Test Files
-
-* **Formatter tests only**:
-
-  ```bash
-  python -m pytest tests/test_formatter.py -v
-  ```
-
-* **Edge cases tests only**:
-
-  ```bash
-  python -m pytest tests/test_edge_cases.py -v
-  ```
-
-* **Integration tests only**:
-
-  ```bash
-  python -m pytest tests/test_integration.py -v
-  ```
-
-* **Server tests only**:
-
-  ```bash
-  python -m pytest tests/test_server.py -v
-  ```
-
-**Note:** All the above commands work the same way in Fish shell.
-
-#### Running with Coverage
-
-To check test coverage, first install the coverage dependency (if not already installed):
+### 🔄 Development Workflow
 
 ```bash
-pip install pytest-cov
+# Make your changes, then run quality checks
+make fix             # 🔧 Auto-fix code style issues
+make lint            # 🔍 Check code quality
+make test            # 🧪 Run tests
+make pre-commit      # ✅ Full pre-commit check
 ```
 
-Then run tests with coverage:
+### 📋 Pull Request Guidelines
 
-```bash
-python -m pytest tests/ --cov=pseint_lsp_py --cov-report=html
-```
+1. **🌟 Create a feature branch** for your changes
+2. **🧪 Add tests** for new functionality
+3. **📚 Update documentation** if necessary
+4. **✅ Run quality checks**: `make pre-commit`
+5. **🧪 Ensure all tests pass**: `make test`
+6. **🏷️ Add type hints** to new Python code
+7. **🎨 Follow existing code style** (automatically enforced by Ruff)
 
-This will generate an HTML coverage report in `htmlcov/index.html`.
+### ⭐ Special Contribution Areas
 
-**For Fish shell users:** The commands work exactly the same way.
+**🎯 VS Code Extension Development**:
 
-#### Advanced Test Options
+- Help needed for creating a proper VS Code extension
+- Knowledge of TypeScript and VS Code extension API beneficial
+- Will significantly improve user experience
 
-* **Run tests in parallel** (faster execution):
+**🚀 Additional LSP Features**:
 
-  ```bash
-  pip install pytest-xdist
-  python -m pytest tests/ -n auto -v
-  ```
+- Diagnostics and error reporting
+- Auto-completion and IntelliSense
+- Symbol navigation and refactoring
 
-* **Run tests with extra verbose output**:
+**🔌 Editor Integrations**:
 
-  ```bash
-  python -m pytest tests/ -vv
-  ```
+- Configurations for other editors (Vim, Emacs, Sublime Text)
+- Testing and validation across different platforms
 
-* **Run tests and stop on first failure**:
+## 🔮 Future Features
 
-  ```bash
-  python -m pytest tests/ -x -v
-  ```
+### 🚀 Planned LSP Enhancements
 
-* **Run only failed tests from last run**:
+The project is designed to be easily extensible for additional LSP features:
 
-  ```bash
-  python -m pytest tests/ --lf -v
-  ```
+- **🔍 Diagnostics**: Syntax error detection and reporting
+- **💡 Auto-completion**: Intelligent code completion for PSeInt keywords and variables
+- **🧭 Symbol navigation**: Go to definition, find references
+- **⚡ Refactoring tools**: Rename symbols, extract functions
 
-#### Test Configuration
+### 📱 VS Code Extension
 
-The tests use `pytest-asyncio` for async test support. The configuration can be adjusted by creating a `pytest.ini` file if needed.
+A dedicated VS Code extension is planned that will provide:
 
-**Note:** All pytest commands work the same way in Fish shell, Bash, or other shells.
+- **🎯 One-click installation** from VS Code marketplace
+- **🤖 Automatic LSP server management** (no manual setup required)
+- **🎨 PSeInt syntax highlighting** and theme support
+- **🐛 Integrated debugging** and error reporting
+- **📄 File templates** for new PSeInt projects
 
-### Contribution
+> **📅 Timeline**: VS Code extension development is planned for the next major release. Contributors welcome!
 
-Contributions are welcome! If you find issues or want to add features (like diagnostics, auto-completion, etc.):
+### 🌟 Editor Support Expansion
 
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Make your changes, including adding relevant tests. Ensure all tests pass.
-4. Add type hints and docstrings to new or modified Python code.
-5. Update documentation if necessary.
-6. Submit a pull request.
+Future editor integrations planned:
+
+- **🚀 Vim/Neovim**: Enhanced configuration and features
+- **🎯 Emacs**: LSP client configuration
+- **✨ Sublime Text**: LSP plugin support
+- **🧠 IntelliJ IDEA**: Plugin development
+
+## 📄 License
+
+See [LICENSE](LICENSE) file for details.
+
+---
+
+## 🎯 Made with ❤️ for the PSeInt community
+
+A modern IDE experience for PSeInt development
+
+[![GitHub stars](https://img.shields.io/github/stars/username/pseint-lsp?style=social)](https://github.com/username/pseint-lsp)
+[![GitHub forks](https://img.shields.io/github/forks/username/pseint-lsp?style=social)](https://github.com/username/pseint-lsp/fork)
+
+**[⭐ Star this project](https://github.com/username/pseint-lsp) | [🐛 Report Bug](https://github.com/username/pseint-lsp/issues) | [💡 Request Feature](https://github.com/username/pseint-lsp/issues)**

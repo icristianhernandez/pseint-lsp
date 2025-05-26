@@ -1,0 +1,75 @@
+# Ruff configuration file
+# Ruff combines the functionality of Black, isort, flake8, pylint, and more
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # Pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "D",    # pydocstyle
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "S",    # flake8-bandit
+    "T20",  # flake8-print
+    "PT",   # flake8-pytest-style
+    "Q",    # flake8-quotes
+    "RET",  # flake8-return
+    "SIM",  # flake8-simplify
+    "ARG",  # flake8-unused-arguments
+    "PTH",  # flake8-use-pathlib
+    "PL",   # Pylint
+    "C90",  # mccabe complexity
+]
+
+# Ignore specific rules
+ignore = [
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "D102",  # Missing docstring in public method
+    "D103",  # Missing docstring in public function
+    "D104",  # Missing docstring in public package
+    "D105",  # Missing docstring in magic method
+    "D107",  # Missing docstring in __init__
+    "S101",  # Use of assert detected (common in tests)
+    "T201",  # print found (useful for debugging/CLI tools)
+]
+
+# Exclude specific directories/files
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "build",
+    "dist",
+    "*.egg-info",
+]
+
+# Set maximum line length
+line-length = 88
+
+# Set maximum complexity
+mccabe.max-complexity = 10
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Use trailing commas
+skip-magic-trailing-comma = false
+
+# Indent with spaces
+indent-style = "space"
+
+# Target Python 3.8+
+target-version = "py38"
+
+[lint.per-file-ignores]
+# Test files can have longer lines and use assert
+"tests/*" = ["S101", "PLR2004"]
+
+[lint.pydocstyle]
+# Use Google docstring convention
+convention = "google"
