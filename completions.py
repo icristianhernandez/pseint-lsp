@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Set
+from typing import List, Optional, Set
 from lsprotocol.types import CompletionItem, CompletionItemKind, InsertTextFormat
 
 # Attempt to import from local pseint_parser, fallback for different execution contexts
@@ -10,76 +10,76 @@ except ImportError:
 
 PSEINT_KEYWORDS_DEFINITIONS = {
     # Main program structures
-    "Proceso": {"kind": CompletionItemKind.KEYWORD, "doc": "Inicia un bloque de Proceso principal."},
-    "FinProceso": {"kind": CompletionItemKind.KEYWORD, "doc": "Finaliza un bloque de Proceso."},
-    "Algoritmo": {"kind": CompletionItemKind.KEYWORD, "doc": "Inicia un bloque de Algoritmo principal (sinónimo de Proceso)."},
-    "FinAlgoritmo": {"kind": CompletionItemKind.KEYWORD, "doc": "Finaliza un bloque de Algoritmo."},
+    "Proceso": {"kind": CompletionItemKind.Keyword, "doc": "Inicia un bloque de Proceso principal."},
+    "FinProceso": {"kind": CompletionItemKind.Keyword, "doc": "Finaliza un bloque de Proceso."},
+    "Algoritmo": {"kind": CompletionItemKind.Keyword, "doc": "Inicia un bloque de Algoritmo principal (sinónimo de Proceso)."},
+    "FinAlgoritmo": {"kind": CompletionItemKind.Keyword, "doc": "Finaliza un bloque de Algoritmo."},
 
     # Subprogram structures
-    "SubProceso": {"kind": CompletionItemKind.KEYWORD, "doc": "Define un subproceso (procedimiento)."},
-    "FinSubProceso": {"kind": CompletionItemKind.KEYWORD, "doc": "Finaliza un subproceso."},
-    "SubAlgoritmo": {"kind": CompletionItemKind.KEYWORD, "doc": "Define un subalgoritmo (sinónimo de SubProceso)."},
-    "FinSubAlgoritmo": {"kind": CompletionItemKind.KEYWORD, "doc": "Finaliza un subalgoritmo."},
-    "Funcion": {"kind": CompletionItemKind.KEYWORD, "doc": "Define una función que retorna un valor."},
-    "FinFuncion": {"kind": CompletionItemKind.KEYWORD, "doc": "Finaliza una función."},
+    "SubProceso": {"kind": CompletionItemKind.Keyword, "doc": "Define un subproceso (procedimiento)."},
+    "FinSubProceso": {"kind": CompletionItemKind.Keyword, "doc": "Finaliza un subproceso."},
+    "SubAlgoritmo": {"kind": CompletionItemKind.Keyword, "doc": "Define un subalgoritmo (sinónimo de SubProceso)."},
+    "FinSubAlgoritmo": {"kind": CompletionItemKind.Keyword, "doc": "Finaliza un subalgoritmo."},
+    "Funcion": {"kind": CompletionItemKind.Keyword, "doc": "Define una función que retorna un valor."},
+    "FinFuncion": {"kind": CompletionItemKind.Keyword, "doc": "Finaliza una función."},
 
     # Declarations
-    "Definir": {"kind": CompletionItemKind.KEYWORD, "doc": "Declara una o más variables."},
-    "Como": {"kind": CompletionItemKind.KEYWORD, "doc": "Especifica el tipo de una variable en una declaración."},
-    "Dimension": {"kind": CompletionItemKind.KEYWORD, "doc": "Declara un arreglo (vector o matriz)."},
+    "Definir": {"kind": CompletionItemKind.Keyword, "doc": "Declara una o más variables."},
+    "Como": {"kind": CompletionItemKind.Keyword, "doc": "Especifica el tipo de una variable en una declaración."},
+    "Dimension": {"kind": CompletionItemKind.Keyword, "doc": "Declara un arreglo (vector o matriz)."},
 
     # Basic I/O
-    "Leer": {"kind": CompletionItemKind.KEYWORD, "doc": "Lee datos de la entrada estándar."},
-    "Escribir": {"kind": CompletionItemKind.KEYWORD, "doc": "Muestra datos en la salida estándar."},
-    "Escribir Sin Saltar": {"kind": CompletionItemKind.KEYWORD, "doc": "Muestra datos sin avanzar a la siguiente línea."},
+    "Leer": {"kind": CompletionItemKind.Keyword, "doc": "Lee datos de la entrada estándar."},
+    "Escribir": {"kind": CompletionItemKind.Keyword, "doc": "Muestra datos en la salida estándar."},
+    "Escribir Sin Saltar": {"kind": CompletionItemKind.Keyword, "doc": "Muestra datos sin avanzar a la siguiente línea."},
 
     # Conditional structure
-    "Si": {"kind": CompletionItemKind.KEYWORD, "doc": "Inicia una estructura condicional."},
-    "Entonces": {"kind": CompletionItemKind.KEYWORD, "doc": "Parte de la estructura Si-Entonces."},
-    "Sino": {"kind": CompletionItemKind.KEYWORD, "doc": "Parte de la estructura Si-Entonces-Sino."},
-    "FinSi": {"kind": CompletionItemKind.KEYWORD, "doc": "Finaliza una estructura Si."},
+    "Si": {"kind": CompletionItemKind.Keyword, "doc": "Inicia una estructura condicional."},
+    "Entonces": {"kind": CompletionItemKind.Keyword, "doc": "Parte de la estructura Si-Entonces."},
+    "Sino": {"kind": CompletionItemKind.Keyword, "doc": "Parte de la estructura Si-Entonces-Sino."},
+    "FinSi": {"kind": CompletionItemKind.Keyword, "doc": "Finaliza una estructura Si."},
 
     # Loop structures
-    "Mientras": {"kind": CompletionItemKind.KEYWORD, "doc": "Inicia un bucle Mientras-Hacer."},
-    "Hacer": {"kind": CompletionItemKind.KEYWORD, "doc": "Parte de las estructuras Mientras y Segun."},
-    "FinMientras": {"kind": CompletionItemKind.KEYWORD, "doc": "Finaliza un bucle Mientras."},
-    "Para": {"kind": CompletionItemKind.KEYWORD, "doc": "Inicia un bucle Para."},
-    "Hasta": {"kind": CompletionItemKind.KEYWORD, "doc": "Parte de la estructura Para."},
-    "Con Paso": {"kind": CompletionItemKind.KEYWORD, "doc": "Parte de la estructura Para (opcional)."},
-    "FinPara": {"kind": CompletionItemKind.KEYWORD, "doc": "Finaliza un bucle Para."},
-    "Repetir": {"kind": CompletionItemKind.KEYWORD, "doc": "Inicia un bucle Repetir-Hasta Que."},
-    "Hasta Que": {"kind": CompletionItemKind.KEYWORD, "doc": "Finaliza un bucle Repetir, especificando la condición."},
+    "Mientras": {"kind": CompletionItemKind.Keyword, "doc": "Inicia un bucle Mientras-Hacer."},
+    "Hacer": {"kind": CompletionItemKind.Keyword, "doc": "Parte de las estructuras Mientras y Segun."},
+    "FinMientras": {"kind": CompletionItemKind.Keyword, "doc": "Finaliza un bucle Mientras."},
+    "Para": {"kind": CompletionItemKind.Keyword, "doc": "Inicia un bucle Para."},
+    "Hasta": {"kind": CompletionItemKind.Keyword, "doc": "Parte de la estructura Para."},
+    "Con Paso": {"kind": CompletionItemKind.Keyword, "doc": "Parte de la estructura Para (opcional)."},
+    "FinPara": {"kind": CompletionItemKind.Keyword, "doc": "Finaliza un bucle Para."},
+    "Repetir": {"kind": CompletionItemKind.Keyword, "doc": "Inicia un bucle Repetir-Hasta Que."},
+    "Hasta Que": {"kind": CompletionItemKind.Keyword, "doc": "Finaliza un bucle Repetir, especificando la condición."},
 
     # Switch structure
-    "Segun": {"kind": CompletionItemKind.KEYWORD, "doc": "Inicia una estructura de selección múltiple."},
-    "Caso": {"kind": CompletionItemKind.KEYWORD, "doc": "Define un caso dentro de una estructura Segun."},
-    "De Otro Modo": {"kind": CompletionItemKind.KEYWORD, "doc": "Define el caso por defecto en Segun."},
-    "FinSegun": {"kind": CompletionItemKind.KEYWORD, "doc": "Finaliza una estructura Segun."},
+    "Segun": {"kind": CompletionItemKind.Keyword, "doc": "Inicia una estructura de selección múltiple."},
+    "Caso": {"kind": CompletionItemKind.Keyword, "doc": "Define un caso dentro de una estructura Segun."},
+    "De Otro Modo": {"kind": CompletionItemKind.Keyword, "doc": "Define el caso por defecto en Segun."},
+    "FinSegun": {"kind": CompletionItemKind.Keyword, "doc": "Finaliza una estructura Segun."},
 
     # Operators and parameters (often used as keywords)
-    "MOD": {"kind": CompletionItemKind.OPERATOR, "doc": "Operador módulo."},
-    "Por Referencia": {"kind": CompletionItemKind.KEYWORD, "doc": "Especifica paso de parámetros por referencia."},
-    "Por Valor": {"kind": CompletionItemKind.KEYWORD, "doc": "Especifica paso de parámetros por valor (generalmente implícito)."},
+    "MOD": {"kind": CompletionItemKind.Operator, "doc": "Operador módulo."},
+    "Por Referencia": {"kind": CompletionItemKind.Keyword, "doc": "Especifica paso de parámetros por referencia."},
+    "Por Valor": {"kind": CompletionItemKind.Keyword, "doc": "Especifica paso de parámetros por valor (generalmente implícito)."},
 
     # Data types
-    "Entero": {"kind": CompletionItemKind.TYPE_PARAMETER, "doc": "Tipo de dato para números enteros."},
-    "Real": {"kind": CompletionItemKind.TYPE_PARAMETER, "doc": "Tipo de dato para números reales."},
-    "Numero": {"kind": CompletionItemKind.TYPE_PARAMETER, "doc": "Tipo de dato numérico (abarca Entero y Real)."},
-    "Logico": {"kind": CompletionItemKind.TYPE_PARAMETER, "doc": "Tipo de dato para valores booleanos (Verdadero/Falso)."},
-    "Booleano": {"kind": CompletionItemKind.TYPE_PARAMETER, "doc": "Sinónimo de Logico."},
-    "Caracter": {"kind": CompletionItemKind.TYPE_PARAMETER, "doc": "Tipo de dato para un solo carácter."},
-    "Texto": {"kind": CompletionItemKind.TYPE_PARAMETER, "doc": "Tipo de dato para cadenas de caracteres (sinónimo de Cadena)."},
-    "Cadena": {"kind": CompletionItemKind.TYPE_PARAMETER, "doc": "Tipo de dato para cadenas de caracteres."},
+    "Entero": {"kind": CompletionItemKind.TypeParameter, "doc": "Tipo de dato para números enteros."},
+    "Real": {"kind": CompletionItemKind.TypeParameter, "doc": "Tipo de dato para números reales."},
+    "Numero": {"kind": CompletionItemKind.TypeParameter, "doc": "Tipo de dato numérico (abarca Entero y Real)."},
+    "Logico": {"kind": CompletionItemKind.TypeParameter, "doc": "Tipo de dato para valores booleanos (Verdadero/Falso)."},
+    "Booleano": {"kind": CompletionItemKind.TypeParameter, "doc": "Sinónimo de Logico."},
+    "Caracter": {"kind": CompletionItemKind.TypeParameter, "doc": "Tipo de dato para un solo carácter."},
+    "Texto": {"kind": CompletionItemKind.TypeParameter, "doc": "Tipo de dato para cadenas de caracteres (sinónimo de Cadena)."},
+    "Cadena": {"kind": CompletionItemKind.TypeParameter, "doc": "Tipo de dato para cadenas de caracteres."},
 
     # Built-in functions / commands (subset)
-    "Borrar Pantalla": {"kind": CompletionItemKind.FUNCTION, "doc": "Limpia la pantalla de salida."},
-    "Esperar": {"kind": CompletionItemKind.FUNCTION, "doc": "Pausa la ejecución por un tiempo."},
-    "Mayusculas": {"kind": CompletionItemKind.FUNCTION, "doc": "Convierte una cadena a mayúsculas."},
-    "Longitud": {"kind": CompletionItemKind.FUNCTION, "doc": "Obtiene la longitud de una cadena."},
-    "Subcadena": {"kind": CompletionItemKind.FUNCTION, "doc": "Extrae una parte de una cadena."},
-    "ConvertirANumero": {"kind": CompletionItemKind.FUNCTION, "doc": "Convierte una cadena a número."},
-    "Aleatorio": {"kind": CompletionItemKind.FUNCTION, "doc": "Genera un número aleatorio."},
-    "trunc": {"kind": CompletionItemKind.FUNCTION, "doc": "Trunca la parte decimal de un número."}
+    "Borrar Pantalla": {"kind": CompletionItemKind.Function, "doc": "Limpia la pantalla de salida."},
+    "Esperar": {"kind": CompletionItemKind.Function, "doc": "Pausa la ejecución por un tiempo."},
+    "Mayusculas": {"kind": CompletionItemKind.Function, "doc": "Convierte una cadena a mayúsculas."},
+    "Longitud": {"kind": CompletionItemKind.Function, "doc": "Obtiene la longitud de una cadena."},
+    "Subcadena": {"kind": CompletionItemKind.Function, "doc": "Extrae una parte de una cadena."},
+    "ConvertirANumero": {"kind": CompletionItemKind.Function, "doc": "Convierte una cadena a número."},
+    "Aleatorio": {"kind": CompletionItemKind.Function, "doc": "Genera un número aleatorio."},
+    "trunc": {"kind": CompletionItemKind.Function, "doc": "Trunca la parte decimal de un número."}
 }
 
 PSEINT_SNIPPETS_DEFINITIONS = [
@@ -215,7 +215,7 @@ ALL_KEYWORD_COMPLETION_ITEMS: List[CompletionItem] = [
 ALL_SNIPPET_COMPLETION_ITEMS: List[CompletionItem] = [
     CompletionItem(
         label=snippet_def["label"],
-        kind=CompletionItemKind.SNIPPET, # All snippets are of kind SNIPPET
+        kind=CompletionItemKind.Snippet, # All snippets are of kind SNIPPET
         insert_text=snippet_def["insert_text"],
         insert_text_format=InsertTextFormat.Snippet,
         documentation=snippet_def.get("documentation")
@@ -299,13 +299,13 @@ def get_contextual_completions(document_content: str, cursor_line_num: int, curs
     # --- Suggest User-Defined Symbols ---
     for sym in symbols:
         if _is_symbol_in_scope(sym, cursor_line_num):
-            kind = CompletionItemKind.VARIABLE
+            kind = CompletionItemKind.Variable
             detail = f"Tipo: {sym.details.get('var_type', 'Desconocido')}"
             if sym.symbol_type == "array":
                 dims = sym.details.get('dimensions', [])
                 detail = f"Arreglo: {sym.details.get('var_type', '')}[{', '.join(dims)}]"
             elif sym.symbol_type == "function" or sym.symbol_type == "subproceso":
-                kind = CompletionItemKind.FUNCTION
+                kind = CompletionItemKind.Function
                 params_list = sym.details.get('params', [])
                 param_names = [p.get('name', 'arg') for p in params_list]
                 param_str = ", ".join(param_names)
@@ -408,7 +408,7 @@ def get_contextual_completions(document_content: str, cursor_line_num: int, curs
                     
                     parameter_completions.append(CompletionItem(
                         label=param_name,
-                        kind=CompletionItemKind.VARIABLE, # Parameters are used like variables
+                        kind=CompletionItemKind.Variable, # Parameters are used like variables
                         insert_text=param_name,
                         insert_text_format=InsertTextFormat.PlainText,
                         detail=detail_str,
@@ -416,5 +416,3 @@ def get_contextual_completions(document_content: str, cursor_line_num: int, curs
                     ))
 
     return contextual_keywords + symbol_completions + parameter_completions + filtered_snippets
-
-```

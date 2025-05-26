@@ -570,5 +570,3 @@ FinAlgoritmo
     print("Symbols:")
     for s in analysis_5['symbols']: print(f"  {s}")
     print("-" * 30)
-
-```
