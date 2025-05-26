@@ -21,6 +21,11 @@ Bringing modern IDE features to PSeInt development ✨
 - Proper keyword casing
 - Consistent code style
 
+#### 🔍 Syntax Error Detection (New!)
+
+- Real-time diagnostics for common PSeInt syntax errors.
+- Identifies issues like mismatched block keywords (e.g., `Proceso` without `FinProceso`, `Si` without `FinSi`).
+
 #### 🚀 Modern Development
 
 - Lightning-fast Ruff linting
@@ -402,7 +407,6 @@ make pre-commit      # ✅ Full pre-commit check
 
 **🚀 Additional LSP Features**:
 
-- Diagnostics and error reporting
 - Auto-completion and IntelliSense
 - Symbol navigation and refactoring
 
@@ -417,7 +421,6 @@ make pre-commit      # ✅ Full pre-commit check
 
 The project is designed to be easily extensible for additional LSP features:
 
-- **🔍 Diagnostics**: Syntax error detection and reporting
 - **💡 Auto-completion**: Intelligent code completion for PSeInt keywords and variables
 - **🧭 Symbol navigation**: Go to definition, find references
 - **⚡ Refactoring tools**: Rename symbols, extract functions

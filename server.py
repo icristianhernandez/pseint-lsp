@@ -11,6 +11,7 @@ from lsprotocol.types import (
     DidOpenTextDocumentParams,
     DidSaveTextDocumentParams,
     DocumentFormattingParams,
+    DiagnosticOptions,  # Added
     InitializeParams,
     InitializeResult,
     InitializeResultServerInfoType,
@@ -30,9 +31,11 @@ if str(script_dir) not in sys.path:
 try:
     from .formatter import format_pseint_code
     from .encoding_utils import ensure_clean_text
+    from .diagnostics import get_diagnostics  # Added
 except ImportError:
     from formatter import format_pseint_code
     from encoding_utils import ensure_clean_text
+    from diagnostics import get_diagnostics  # Added
 
 logging.basicConfig(level=logging.DEBUG, filename="/tmp/pseint_lsp.log")
 
@@ -52,6 +55,10 @@ def initialize(params: InitializeParams) -> InitializeResult:
         capabilities=ServerCapabilities(
             text_document_sync=TextDocumentSyncKind.Full,
             document_formatting_provider=True,
+            diagnostic_provider=DiagnosticOptions(  # Added
+                inter_file_dependencies=False,
+                workspace_diagnostics=False,
+            ),
         ),
     )
 
@@ -59,11 +66,28 @@ def initialize(params: InitializeParams) -> InitializeResult:
 @server.feature("textDocument/didOpen")
 async def did_open(ls: LanguageServer, params: DidOpenTextDocumentParams):
     logging.info(f"File Opened: {params.text_document.uri}")
+    document_uri = params.text_document.uri
+    document = ls.workspace.get_document(document_uri) # type: ignore
+    if document:
+        diagnostics = get_diagnostics(document.source)
+        ls.publish_diagnostics(document_uri, diagnostics)
+    else:
+        logging.warning(f"Document not found for diagnostics on open: {document_uri}")
 
 
 @server.feature("textDocument/didChange")
 async def did_change(ls: LanguageServer, params: DidChangeTextDocumentParams):
     logging.info(f"File Changed: {params.text_document.uri}")
+    document_uri = params.text_document.uri
+    # For DidChangeTextDocumentParams, the content is in params.content_changes[0].text
+    # assuming TextDocumentSyncKind.Full (which it is)
+    # However, pygls updates the workspace document automatically.
+    document = ls.workspace.get_document(document_uri) # type: ignore
+    if document:
+        diagnostics = get_diagnostics(document.source)
+        ls.publish_diagnostics(document_uri, diagnostics)
+    else:
+        logging.warning(f"Document not found for diagnostics on change: {document_uri}")
 
 
 @server.feature("textDocument/didSave")
