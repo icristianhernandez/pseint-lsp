@@ -1,5 +1,5 @@
 import re
-from typing import List, Tuple, Dict, Set, Optional, Union 
+from typing import List, Tuple, Dict, Set, Optional, Union, Any, NamedTuple 
 
 from lsprotocol.types import (
     Diagnostic,
@@ -18,6 +18,9 @@ PSEINT_BLOCK_KEYWORDS: Dict[str, str] = {
 CONTEXTUAL_KEYWORDS: Dict[str, str] = {
     "sino": "si", "caso": "segun", "deotromodo": "segun", "hastaque": "repetir",
 }
+KEYWORD_ALIASES: Dict[str, str] = {
+    "algoritmo": "proceso", "subalgoritmo": "subproceso", "booleano": "logico"
+}
 VALID_TYPES: Set[str] = {
     "entero", "real", "numero", "logico", "booleano", "caracter", "texto", "cadena"
 }
@@ -28,6 +31,15 @@ ALL_OPERATORS: Set[str] = {
     "+", "-", "*", "/", "%", "mod", "^", "=", "<>", "<", ">", "<=", ">=",
     "&", "|", "y", "o", "no", "~", "<-"
 }
+KNOWN_KEYWORDS_FOR_LINE_START: Set[str] = {
+    "escribir", "leer", "si", "mientras", "para", "segun", "repetir", "caso", "sino", 
+    "deotromodo", "hastaque", "finsi", "finmientras", "finpara", "finsegun", 
+    "finproceso", "finalgoritmo", "finsubproceso", "finsubalgoritmo", "finfuncion"
+}
+ARITHMETIC_OPERATORS: Set[str] = {"+", "-", "*", "/", "%", "mod", "^"}
+LOGICAL_OPERATORS: Set[str] = {"y", "o", "&", "|"}
+COMPARISON_OPERATORS: Set[str] = {"=", "<>", "<", ">", "<=", ">="}
+ASSIGNMENT_OPERATOR: str = "<-"
 ARITHMETIC_OPERATORS: Set[str] = {"+", "-", "*", "/", "%", "mod", "^"}
 LOGICAL_OPERATORS: Set[str] = {"&", "|", "y", "o"} 
 COMPARISON_OPERATORS: Set[str] = {"=", "<>", "<", ">", "<=", ">="}
@@ -67,7 +79,9 @@ BUILTIN_FUNCTIONS_SIGNATURES: Dict[str, Dict[str, Any]] = {
 # --- Symbol Table Structures ---
 class ParamSymbol:
     def __init__(self, name: str, type: str, by_ref: bool = False):
-        self.name = name; self.type = type; self.by_ref = by_ref
+        self.name = name
+        self.by_ref = by_ref
+        self.type = type
 
 class Symbol:
     def __init__(self, name: str, type: str, line_defined: int, 
@@ -78,10 +92,14 @@ class Symbol:
                  assigned_in_scope: bool = False, 
                  is_function_return_var: bool = False,
                  is_used: bool = False): # New field for P2
-        self.name = name; self.type = type; self.line_defined = line_defined
-        self.is_callable = is_callable; self.is_array = is_array
+        self.name = name
+        self.type = type
+        self.line_defined = line_defined
+        self.is_callable = is_callable
+        self.is_array = is_array
         self.is_proceso_algoritmo = is_proceso_algoritmo
-        self.params = params or []; self.array_dims_str = array_dims_str or []
+        self.params = params or []
+        self.array_dims_str = array_dims_str or []
         self.assigned_in_scope = assigned_in_scope
         self.is_function_return_var = is_function_return_var
         self.is_used = is_used # For P2 "unused variable"
@@ -225,37 +243,116 @@ def get_diagnostics(code: str) -> List[Diagnostic]:
         is_definition_line = False 
         
         # --- Definitions: Proceso/Algoritmo, Funcion/SubProceso, Dimension, Definir ---
-        # (Adapted logic from Turn 25/29/33)
-        # ...
-        subproceso_match = re.match(r"(subproceso|subalgoritmo)\s+(" + IDENTIFIER_REGEX_STR + r")\s*(\()?\s*(.*?)\s*(\))?", line_lower_stripped, re.IGNORECASE)
-        funcion_match = re.match(r"funcion\s+(" + IDENTIFIER_REGEX_STR + r")\s*=\s*(" + IDENTIFIER_REGEX_STR + r")\s*(\()?\s*(.*?)\s*(\))?", line_lower_stripped, re.IGNORECASE)
         
+        # Process/Algorithm definition
+        proceso_match = re.match(r"(proceso|algoritmo)\s+(" + IDENTIFIER_REGEX_STR + r")", line_lower_stripped, re.IGNORECASE)
+        if proceso_match:
+            is_definition_line = True
+            keyword = proceso_match.group(1)
+            name = proceso_match.group(2)
+            main_proceso_algoritmo_name = name.lower()
+            
+            # Add to symbol table
+            symbol_table[name.lower()] = Symbol(name, "proceso", i, is_proceso_algoritmo=True)
+            
+        # Function definition
+        funcion_match = re.match(r"funcion\s+(" + IDENTIFIER_REGEX_STR + r")\s*=\s*(" + IDENTIFIER_REGEX_STR + r")\s*(\()?\s*(.*?)\s*(\))?", line_lower_stripped, re.IGNORECASE)
         if funcion_match: 
             is_definition_line = True
-            ret_var_name_raw = funcion_match.group(1); func_name_raw = funcion_match.group(2); func_name_lower = func_name_raw.lower()
-            # ... (Full parsing logic for Funcion from Turn 25, creating Symbol, adding to symbol_table) ...
-            # Mark params as used & assigned
-            # Add return_var to symbol_table for this scope, is_function_return_var=True, assigned_in_scope=False, is_used=False
-            # ...
-            # Push to function_scope_stack
-            # function_scope_stack.append(FunctionScopeInfo(name=func_name_lower, return_var_name=ret_var_name_raw.lower(), return_var_assigned=False, line_defined=i, content_start_line=i+1))
-            # ... (Alias check for 'funcion' if any)
-            pass # Placeholder for brevity, assume previous logic is integrated
-        elif subproceso_match: # Handle SubProceso
+            ret_var_name_raw = funcion_match.group(1)
+            func_name_raw = funcion_match.group(2)
+            func_name_lower = func_name_raw.lower()
+            params_str = funcion_match.group(4) if funcion_match.group(4) else ""
+            
+            # Check for redefinition
+            if func_name_lower in symbol_table:
+                start_char = original_line_for_char_find.lower().find(func_name_raw.lower())
+                diagnostics.append(_create_diagnostic(i, start_char, start_char + len(func_name_raw), 
+                                                    f"Función '{func_name_raw}' ya está definida.", DiagnosticSeverity.Error))
+            
+            # Parse parameters
+            params = []
+            if params_str.strip():
+                param_parts = [p.strip() for p in params_str.split(',')]
+                for param_part in param_parts:
+                    if param_part:
+                        params.append(Parameter(param_part, "desconocido", False))
+                        # Add parameter to symbol table as used variable
+                        symbol_table[param_part.lower()] = Symbol(param_part, "desconocido", i, is_callable=False, is_array=False, is_proceso_algoritmo=False, assigned_in_scope=True)
+            
+            # Add function to symbol table
+            symbol_table[func_name_lower] = Symbol(func_name_raw, "funcion", i, is_callable=True, params=params)
+            
+            # Add return variable to symbol table
+            symbol_table[ret_var_name_raw.lower()] = Symbol(ret_var_name_raw, "desconocido", i, is_function_return_var=True)
+            
+            # Push to function scope stack
+            function_scope_stack.append(FunctionScopeInfo(name=func_name_lower, return_var_name=ret_var_name_raw.lower(), return_var_assigned=False, line_defined=i, content_start_line=i+1))
+            
+        # SubProcess definition
+        subproceso_match = re.match(r"(subproceso|subalgoritmo)\s+(" + IDENTIFIER_REGEX_STR + r")\s*(\()?\s*(.*?)\s*(\))?", line_lower_stripped, re.IGNORECASE)
+        if subproceso_match:
             is_definition_line = True
-            # ... (Full parsing logic for SubProceso from Turn 25, creating Symbol, adding to symbol_table) ...
-            # Mark params as used & assigned
-            # ...
-            # Push to function_scope_stack (with return_var_name=None)
-            # function_scope_stack.append(FunctionScopeInfo(name=func_name_lower, return_var_name=None, return_var_assigned=False, line_defined=i, content_start_line=i+1))
-            # ... (Alias check for 'subproceso'/'subalgoritmo')
-            pass # Placeholder for brevity
+            keyword = subproceso_match.group(1)
+            func_name_raw = subproceso_match.group(2)
+            func_name_lower = func_name_raw.lower()
+            params_str = subproceso_match.group(4) if subproceso_match.group(4) else ""
+            
+            # Check for redefinition
+            if func_name_lower in symbol_table:
+                start_char = original_line_for_char_find.lower().find(func_name_raw.lower())
+                diagnostics.append(_create_diagnostic(i, start_char, start_char + len(func_name_raw), 
+                                                    f"SubProceso '{func_name_raw}' ya está definido.", DiagnosticSeverity.Error))
+            
+            # Parse parameters
+            params = []
+            if params_str.strip():
+                param_parts = [p.strip() for p in params_str.split(',')]
+                for param_part in param_parts:
+                    if param_part:
+                        params.append(Parameter(param_part, "desconocido", False))
+                        # Add parameter to symbol table as used variable
+                        symbol_table[param_part.lower()] = Symbol(param_part, "desconocido", i, is_callable=False, is_array=False, is_proceso_algoritmo=False, assigned_in_scope=True)
+            
+            # Add subprocess to symbol table
+            symbol_table[func_name_lower] = Symbol(func_name_raw, "subproceso", i, is_callable=True, params=params)
+            
+            # Push to function scope stack
+            function_scope_stack.append(FunctionScopeInfo(name=func_name_lower, return_var_name=None, return_var_assigned=False, line_defined=i, content_start_line=i+1))
 
-        # ... (Dimension and Definir parsing from Turn 33, including alias checks for types in Definir) ...
-        # For Definir: mark symbol with is_used=False initially.
-        # For Dimension: mark symbol with is_used=False initially (unless PSeInt considers dimensioning as usage).
-        # For Parameters in Func/SubProc: mark is_used=True.
-        # For Para loop var: mark is_used=True.
+        # Variable definition (Definir)
+        definir_match = re.match(r"definir\s+(" + IDENTIFIER_REGEX_STR + r")\s+como\s+(" + IDENTIFIER_REGEX_STR + r")", line_lower_stripped, re.IGNORECASE)
+        if definir_match:
+            is_definition_line = True
+            var_name = definir_match.group(1)
+            var_type = definir_match.group(2)
+            var_name_lower = var_name.lower()
+            
+            # Check for redefinition
+            if var_name_lower in symbol_table and not symbol_table[var_name_lower].is_function_return_var:
+                start_char = original_line_for_char_find.lower().find(var_name.lower())
+                diagnostics.append(_create_diagnostic(i, start_char, start_char + len(var_name), 
+                                                    f"Variable '{var_name}' ya está definida.", DiagnosticSeverity.Error))
+            
+            # Add to symbol table
+            symbol_table[var_name_lower] = Symbol(var_name, var_type, i)
+
+        # Array dimension definition
+        dimension_match = re.match(r"dimension\s+(" + IDENTIFIER_REGEX_STR + r")\s*\[(.*?)\]", line_lower_stripped, re.IGNORECASE)
+        if dimension_match:
+            is_definition_line = True
+            var_name = dimension_match.group(1)
+            dimensions = dimension_match.group(2)
+            var_name_lower = var_name.lower()
+            
+            # Check for redefinition
+            if var_name_lower in symbol_table:
+                start_char = original_line_for_char_find.lower().find(var_name.lower())
+                diagnostics.append(_create_diagnostic(i, start_char, start_char + len(var_name), 
+                                                    f"Variable '{var_name}' ya está definida.", DiagnosticSeverity.Error))
+            
+            # Add to symbol table as array
+            symbol_table[var_name_lower] = Symbol(var_name, "arreglo", i, is_array=True)
 
 
         # --- Block Error Checks & Segun Variable Type & P2 Empty Block & P2 Missing Colon ---
@@ -283,12 +380,13 @@ def get_diagnostics(code: str) -> List[Diagnostic]:
                 
                 if block_stack: # Check for empty block before popping
                     block_type, open_line_num, _, open_line_text = block_stack[-1]
-                    if block_type == open_keyword_for_closer : # Matched block
+                    if block_type == open_keyword_for_closer: # Matched block
                         is_empty = True
                         if i > open_line_num + 1: # More than one line apart
                             for k_line_idx in range(open_line_num + 1, i):
                                 if lines[k_line_idx].strip() != "" and not lines[k_line_idx].strip().startswith("//"):
-                                    is_empty = False; break
+                                    is_empty = False
+                                    break
                         elif i == open_line_num + 1: # Consecutive lines
                             is_empty = True 
                         else: # Same line, or error - should not happen if block open/close are on different lines
@@ -297,7 +395,24 @@ def get_diagnostics(code: str) -> List[Diagnostic]:
                         if is_empty:
                              open_kw_start_char = open_line_text.lower().find(block_type)
                              diagnostics.append(_create_diagnostic(open_line_num, open_kw_start_char, open_kw_start_char + len(block_type), f"Bloque '{block_type.capitalize()}' vacío. Se esperaba contenido.", DiagnosticSeverity.Warning))
-                # ... (Rest of closing keyword logic from Turn 25, including FinFuncion return value check) ...
+                        
+                        # Pop the matched block
+                        block_stack.pop()
+                        
+                        # Special handling for function return check
+                        if block_type in ("funcion", "finfuncion") and function_scope_stack:
+                            func_info = function_scope_stack.pop()
+                            if func_info.return_var_name and not func_info.return_var_assigned:
+                                diagnostics.append(_create_diagnostic(i, start_char_on_line, start_char_on_line + len(actual_close_keyword_on_line), 
+                                                                    f"Función '{func_info.name}' no asigna valor a su variable de retorno.", DiagnosticSeverity.Warning))
+                    else:
+                        # Mismatched block closure
+                        diagnostics.append(_create_diagnostic(i, start_char_on_line, start_char_on_line + len(actual_close_keyword_on_line), 
+                                                            f"'{actual_close_keyword_on_line.capitalize()}' no coincide con bloque abierto '{block_type.capitalize()}'.", DiagnosticSeverity.Error))
+                else:
+                    # Closing keyword without corresponding opening
+                    diagnostics.append(_create_diagnostic(i, start_char_on_line, start_char_on_line + len(actual_close_keyword_on_line), 
+                                                        f"'{actual_close_keyword_on_line.capitalize()}' sin bloque correspondiente.", DiagnosticSeverity.Error))
                 break
         if found_block_keyword_for_stack: continue
 
@@ -329,13 +444,130 @@ def get_diagnostics(code: str) -> List[Diagnostic]:
                 diagnostics.append(_create_diagnostic(i, cmd_start_char, cmd_start_char + len(command), f"Comando '{command.capitalize()}' requiere una o más expresiones.", DiagnosticSeverity.Warning))
 
 
-        # --- Assignment, Expression, Call Checks (from Turn 33, including P1s) ---
-        # ... (Full logic, ensure _infer_expression_type calls _mark_variable_used) ...
+        # --- Assignment, Expression, Call Checks ---
         if not (is_definition_line or found_block_keyword_for_stack or any(line_lower_stripped.startswith(kw) for kw in KNOWN_KEYWORDS_FOR_LINE_START)):
-            # ... (Assignment, Operator, Type, Call, Array Index checks)
-            pass # Placeholder for brevity
+            
+            # Check for assignment statements
+            if "<-" in line_stripped:
+                parts = line_stripped.split("<-", 1)
+                if len(parts) == 2:
+                    var_part = parts[0].strip()
+                    expr_part = parts[1].strip()
+                    
+                    # Handle array assignment (var[index] <- value)
+                    array_match = re.match(r"(" + IDENTIFIER_REGEX_STR + r")\s*\[(.*?)\]", var_part, re.IGNORECASE)
+                    if array_match:
+                        var_name = array_match.group(1)
+                        index_expr = array_match.group(2)
+                        var_name_lower = var_name.lower()
+                        
+                        # Check if array is declared
+                        if var_name_lower not in symbol_table:
+                            start_char = original_line_for_char_find.lower().find(var_name.lower())
+                            diagnostics.append(_create_diagnostic(i, start_char, start_char + len(var_name),
+                                                                f"Variable '{var_name}' no declarada.", DiagnosticSeverity.Error))
+                        else:
+                            sym = symbol_table[var_name_lower]
+                            if not sym.is_array:
+                                start_char = original_line_for_char_find.lower().find(var_name.lower())
+                                diagnostics.append(_create_diagnostic(i, start_char, start_char + len(var_name),
+                                                                    f"Variable '{var_name}' no es un arreglo.", DiagnosticSeverity.Error))
+                            else:
+                                _mark_variable_used(var_name, symbol_table)
+                                sym.assigned_in_scope = True
+                        
+                        # Check index expression
+                        _infer_expression_type(index_expr, symbol_table, i, diagnostics, original_line_for_char_find)
+                        
+                    else:
+                        # Regular variable assignment
+                        var_name = var_part
+                        var_name_lower = var_name.lower()
+                        
+                        # Check if variable is declared
+                        if var_name_lower not in symbol_table:
+                            start_char = original_line_for_char_find.lower().find(var_name.lower())
+                            diagnostics.append(_create_diagnostic(i, start_char, start_char + len(var_name),
+                                                                f"Variable '{var_name}' no declarada.", DiagnosticSeverity.Error))
+                        else:
+                            sym = symbol_table[var_name_lower]
+                            _mark_variable_used(var_name, symbol_table)
+                            sym.assigned_in_scope = True
+                            
+                            # Type compatibility check
+                            expr_type = _infer_expression_type(expr_part, symbol_table, i, diagnostics, original_line_for_char_find)
+                            if sym.type and expr_type and not _are_types_compatible_for_assignment(sym.type, expr_type):
+                                expr_start = original_line_for_char_find.find("<-") + 2
+                                diagnostics.append(_create_diagnostic(i, expr_start, expr_start + len(expr_part),
+                                                                    f"Tipos incompatibles: no se puede asignar '{expr_type}' a '{sym.type}'.", 
+                                                                    DiagnosticSeverity.Error))
+            
+            # Check for function/procedure calls
+            elif re.search(r"(" + IDENTIFIER_REGEX_STR + r")\s*\(", line_stripped, re.IGNORECASE):
+                call_match = re.search(r"(" + IDENTIFIER_REGEX_STR + r")\s*\((.*?)\)", line_stripped, re.IGNORECASE)
+                if call_match:
+                    func_name = call_match.group(1)
+                    args_str = call_match.group(2)
+                    func_name_lower = func_name.lower()
+                    
+                    # Check if function/procedure is defined
+                    if func_name_lower not in symbol_table and func_name_lower not in BUILTIN_FUNCTIONS_SIGNATURES:
+                        start_char = original_line_for_char_find.lower().find(func_name.lower())
+                        diagnostics.append(_create_diagnostic(i, start_char, start_char + len(func_name),
+                                                            f"Función o procedimiento '{func_name}' no definido.", DiagnosticSeverity.Error))
+                    else:
+                        _mark_variable_used(func_name, symbol_table)
+                        
+                        # Check parameter count for built-in functions
+                        if func_name_lower in BUILTIN_FUNCTIONS_SIGNATURES:
+                            sig = BUILTIN_FUNCTIONS_SIGNATURES[func_name_lower]
+                            expected_params = sig.get("param_count", 0)
+                            args = _parse_arg_list_str(args_str) if args_str.strip() else []
+                            actual_params = len(args)
+                            
+                            if expected_params != actual_params and expected_params != -1:  # -1 means variable args
+                                start_char = original_line_for_char_find.lower().find(func_name.lower())
+                                diagnostics.append(_create_diagnostic(i, start_char, start_char + len(func_name),
+                                                                    f"Función '{func_name}' espera {expected_params} parámetros, se proporcionaron {actual_params}.", 
+                                                                    DiagnosticSeverity.Error))
+                        
+                        # Process arguments to mark variables as used
+                        if args_str.strip():
+                            args = _parse_arg_list_str(args_str)
+                            for arg in args:
+                                _infer_expression_type(arg, symbol_table, i, diagnostics, original_line_for_char_find)
+            
+            # Check for standalone expressions (like variable usage)
+            else:
+                # Simple variable reference
+                if IDENTIFIER_REGEX.fullmatch(line_stripped):
+                    var_name = line_stripped
+                    var_name_lower = var_name.lower()
+                    
+                    if var_name_lower not in symbol_table:
+                        start_char = 0
+                        diagnostics.append(_create_diagnostic(i, start_char, start_char + len(var_name),
+                                                            f"Variable '{var_name}' no declarada.", DiagnosticSeverity.Error))
+                    else:
+                        _mark_variable_used(var_name, symbol_table)
+                
+                # Complex expression
+                elif line_stripped and not line_stripped.startswith("//"):
+                    _infer_expression_type(line_stripped, symbol_table, i, diagnostics, original_line_for_char_find)
 
     # --- Final Checks (after all lines processed) ---
+    
+    # Check for unclosed blocks
+    for block_type, open_line_num, start_char, original_line in block_stack:
+        diagnostics.append(_create_diagnostic(open_line_num, start_char, start_char + len(block_type), 
+                                            f"Bloque '{block_type.capitalize()}' no cerrado. Se esperaba 'Fin{block_type.capitalize()}'.", DiagnosticSeverity.Error))
+    
+    # Check for functions without return assignment
+    for func_info in function_scope_stack:
+        if func_info.return_var_name:
+            diagnostics.append(_create_diagnostic(func_info.line_defined, 0, 0, 
+                                                f"Función '{func_info.name}' no asigna valor a su variable de retorno.", DiagnosticSeverity.Warning))
+    
     # P2: Unused Variable Warning
     for sym_name, sym_obj in symbol_table.items():
         if not sym_obj.is_used and \
@@ -353,4 +585,3 @@ def get_diagnostics(code: str) -> List[Diagnostic]:
     # ... (Final Block Checks from Turn 25) ...
     
     return diagnostics
-```
