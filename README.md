@@ -35,11 +35,12 @@ Bringing modern IDE features to PSeInt development ✨
 
 #### 📦 Easy Setup
 
-- One-command installation
+- Standard Python package installation
 - Cross-platform support
-- Zero configuration
+- Entry point commands
 
 #### 💡 Enhanced Code Intelligence
+
 - Context-aware auto-completion for keywords, variables, and functions.
 - Helpful code snippets for common PSeInt structures.
 - Rich hover information for symbols (variable types, function signatures).
@@ -60,11 +61,11 @@ Bringing modern IDE features to PSeInt development ✨
 
 ---
 
-### � Workflow Overview
+### 📋 Workflow Overview
 
 ```mermaid
 graph LR
-    A[📥 Install] --> B[⚙️ Configure Editor]
+    A[📥 Install Package] --> B[⚙️ Configure Editor]
     B --> C[📝 Open .psc file]
     C --> D[✨ Enjoy LSP features!]
     
@@ -88,24 +89,68 @@ graph LR
 
 **⚡ Quick Setup:**
 
+#### Option 1: Package Installation (Recommended)
+
 ```bash
-# 📥 Clone the repository
-git clone <repository-url>
+# 📥 Clone and install as package
+git clone https://github.com/icristianhernandez/pseint-lsp
 cd pseint-lsp
 
-# 🔧 Create virtual environment and install dependencies
+# 🔧 Create virtual environment and install
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip install .
+
+# 🚀 Verify installation
+pseint-lsp  # Starts LSP server (Ctrl+C to stop)
+pseint-format --help  # Shows CLI formatter help
+```
+
+**📍 Note the paths**: After installation, the commands are available as:
+
+- `./venv/bin/pseint-lsp` (LSP server)
+- `.venv/bin/pseint-format` (CLI formatter)
+
+```bash
+# Alternative verification using full paths
+.venv/bin/pseint-lsp &  # Start LSP server in background
+.venv/bin/pseint-format --help  # Show help
+kill %1  # Stop background LSP server
+```
+
+#### Option 2: Development Installation
+
+```bash
+# 📥 Clone the repository
+git clone https://github.com/icristianhernandez/pseint-lsp
+cd pseint-lsp
+
+# 🔧 Create virtual environment and install in development mode
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -e .
+
+# 🚀 Verify installation
+pseint-lsp  # Starts LSP server (Ctrl+C to stop)
+```
+
+**📍 Note the paths**: Commands are available as:
+
+- `.venv/bin/pseint-lsp` (LSP server)
+- `.venv/bin/pseint-format` (CLI formatter)
+
+```bash
+# Alternative verification using full paths
+.venv/bin/pseint-lsp &  # Start LSP server in background
+kill %1  # Stop background LSP server
 ```
 
 **🎯 Next Steps:**
 
-1. **📍 Note the installation path**: You'll need the full path to this directory for your editor configuration
-2. **⚙️ Configure your editor**: Follow the [Editor Integration](#-editor-integration) section below to set up the LSP in Neovim, VS Code, or your preferred editor
-3. **🚀 Start coding**: Open a `.psc` file and enjoy automatic formatting and LSP features!
+1. **⚙️ Configure your editor**: Follow the [Editor Integration](#-editor-integration) section below
+2. **🚀 Start coding**: Open a `.psc` file and enjoy automatic formatting and LSP features!
 
-> **💡 Pro Tip**: The LSP server runs automatically when you open PSeInt files in your configured editor. You don't need to start it manually!
+> **💡 Pro Tip**: The LSP server runs automatically when you open PSeInt files in your configured editor using the `pseint-lsp` command!
 
 ### 🛠️ For Developers (Contributing)
 
@@ -121,7 +166,7 @@ pip install -r requirements.txt
 
 ```bash
 # 📥 Clone and setup everything
-git clone <repository-url>
+git clone https://github.com/icristianhernandez/pseint-lsp
 cd pseint-lsp
 ./setup-dev.sh
 
@@ -137,6 +182,7 @@ make help             # See all available commands
 # ⚙️ Set up development environment
 make setup
 source .venv/bin/activate
+pip install -e .     # Install package in development mode
 make info
 ```
 
@@ -154,11 +200,26 @@ make info
 
 ## 🔌 Editor Integration
 
-> **📍 For Users**: This is your next step after installation. Configure your editor to automatically use the PSeInt LSP when editing `.psc` files.
+> **📍 For Users**: Configure your editor to automatically use the PSeInt LSP when editing `.psc` files.
 
-### 🚀 Neovim
+### 📍 **Important: Path Customization Required**
 
-#### 🎯 Option 1: Main configuration (init.lua)
+The configuration examples below use `<repo-path>` as a placeholder path. **You must replace this with your actual installation directory**:
+
+- **Linux/macOS**: `/home/yourusername/pseint-lsp` or `/Users/yourusername/pseint-lsp`
+- **Windows**: `C:\Users\yourusername\pseint-lsp`
+
+**Why is this necessary?** Unlike globally installed packages, the PSeInt LSP runs from your cloned repository directory using its virtual environment. Each user's installation path is unique based on where they cloned the repository.
+
+**🔍 To find your path**:
+```bash
+cd pseint-lsp
+pwd  # Shows current directory path - use this in your editor configuration
+```
+
+### � Neovim
+
+#### 🎯 Option 1: Using installed package (Recommended)
 
 ```lua
 -- Set up filetype detection
@@ -166,9 +227,9 @@ vim.filetype.add({
   extension = { psc = 'pseint' },
 })
 
--- Configure PSeInt LSP
+-- Configure PSeInt LSP using full path to virtual environment
 vim.lsp.config('pseint-lsp', {
-  cmd = { '/path/to/pseint-lsp/.venv/bin/python', '/path/to/pseint-lsp/launch.py' },
+  cmd = { '<repo-path>/.venv/bin/pseint-lsp' },  -- Update this path
   filetypes = { 'pseint' },
   root_markers = { '.git', 'proyecto.psc' },
   name = 'pseint-lsp',
@@ -178,13 +239,36 @@ vim.lsp.config('pseint-lsp', {
 vim.lsp.enable('pseint-lsp')
 ```
 
-#### 🔧 Option 2: Dedicated configuration file
+#### 🔧 Option 2: Development mode (for contributors)
+
+```lua
+-- Set up filetype detection
+vim.filetype.add({
+  extension = { psc = 'pseint' },
+})
+
+-- Configure PSeInt LSP for development
+vim.lsp.config('pseint-lsp', {
+  cmd = { '<repo-path>/.venv/bin/python', '-m', 'pseint_lsp.server' },
+  filetypes = { 'pseint' },
+  root_markers = { '.git', 'proyecto.psc' },
+  name = 'pseint-lsp',
+  cwd = '<repo-path>',  -- Set to your project directory
+})
+
+-- Enable the LSP
+vim.lsp.enable('pseint-lsp')
+```
+
+> **📍 Important**: Replace `<repo-path>` with the actual path to your cloned repository directory.
+
+#### 📁 Dedicated configuration file
 
 Create `~/.config/nvim/lsp/pseint-lsp.lua`:
 
 ```lua
 return {
-  cmd = { '/path/to/pseint-lsp/.venv/bin/python', '/path/to/pseint-lsp/launch.py' },
+  cmd = { '<repo-path>/.venv/bin/pseint-lsp' },  -- Update this path
   filetypes = { 'pseint' },
   root_markers = { '.git', 'proyecto.psc' },
   name = 'pseint-lsp',
@@ -197,6 +281,8 @@ Then in your `init.lua`:
 vim.filetype.add({ extension = { psc = 'pseint' } })
 vim.lsp.enable('pseint-lsp')
 ```
+
+> **📍 Important**: Replace `<repo-path>` with the actual path to your cloned repository directory.
 
 ### 💻 VS Code
 
@@ -223,14 +309,15 @@ For now, advanced users can manually configure the LSP using a VS Code extension
   "files.autoGuessEncoding": true,
   "languageserver": {
     "pseint": {
-      "command": "/path/to/pseint-lsp/.venv/bin/python",
-      "args": ["/path/to/pseint-lsp/launch.py"],
+      "command": "<repo-path>/.venv/bin/pseint-lsp",
       "filetypes": ["pseint"],
       "rootPatterns": [".git", "proyecto.psc"]
     }
   }
 }
 ```
+
+> **📍 Important**: Replace `<repo-path>` with the actual path to your cloned repository directory.
 
 > **⚠️ Important**: This manual approach requires technical knowledge and may not work reliably. We recommend waiting for the official VS Code extension or using Neovim for the best experience.
 
@@ -248,9 +335,37 @@ Regardless of the method used, configure VS Code for PSeInt file encoding:
 
 ## 🎯 Usage
 
-Once configured with your editor, the LSP provides powerful code formatting and navigation for PSeInt files.
+### 📝 Command Line Tools
 
-### 📝 Available Commands
+After installation, you have access to these commands:
+
+| Command | Description | Usage |
+|---------|-------------|-------|
+| `.venv/bin/pseint-lsp` | 🚀 Start LSP server | Used by editors automatically |
+| `.venv/bin/pseint-format` | ✨ Format PSeInt files | `.venv/bin/pseint-format file.psc` |
+
+#### 🔧 CLI Formatting Examples
+
+```bash
+# Activate virtual environment first
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Format a single file
+pseint-format archivo.psc
+
+# Format with specific encoding
+pseint-format --encoding utf-8 archivo.psc
+
+# Format and save to different file
+pseint-format archivo.psc --output formatted_archivo.psc
+
+# Or use full path without activating venv
+.venv/bin/pseint-format archivo.psc
+```
+
+### 📝 LSP Features in Editors
+
+Once configured with your editor, the LSP provides powerful code formatting and navigation for PSeInt files.
 
 | Action | Neovim | VS Code | Description |
 |--------|--------|---------|-------------|
@@ -306,14 +421,18 @@ PSeInt uses **ISO-8859-1 (Latin-1)** encoding by default, with full support for 
 ### 📁 Project Structure
 
 ```text
-├── 🚀 server.py              # Main LSP server
-├── ✨ formatter.py           # PSeInt formatting logic  
-├── 🔧 launch.py              # Server launcher script
+├── 📦 pseint_lsp/            # Main package
+│   ├── 🚀 server.py          # Main LSP server
+│   ├── ✨ formatter.py       # PSeInt formatting logic  
+│   ├── 🔧 cli_formatter.py   # CLI formatting tool
+│   ├── 💡 completions.py     # Auto-completion features
+│   └── 📝 pseint_parser.py   # PSeInt syntax parser
+├── 🧪 tests/                 # Test suite
+├── 📚 docs/                  # Documentation
+├── 📋 pyproject.toml         # Package configuration
 ├── ⚙️ Makefile               # Development automation
 ├── 📦 requirements.txt       # Production dependencies
-├── 🧪 requirements-dev.txt   # Development dependencies
-├── 🧪 tests/                 # Test suite
-└── 📚 docs/                  # Documentation
+└── 🧪 requirements-dev.txt   # Development dependencies
 ```
 
 ### 📝 Formatting Rules
@@ -359,6 +478,7 @@ The LSP server is built using modern Python practices:
 - **⚡ asyncio**: Asynchronous I/O for LSP communication
 - **🧩 Modular design**: Separate formatter and server components
 - **✅ Comprehensive testing**: Unit, integration, and end-to-end tests
+- **📦 Standard packaging**: Uses pyproject.toml and setuptools entry points
 
 ## 🤝 Contributing
 
@@ -372,6 +492,7 @@ Contributions are welcome! This project follows modern Python development practi
    ```bash
    make setup
    source .venv/bin/activate
+   pip install -e .  # Install package in development mode
    ```
 
 3. **🔗 Install pre-commit hooks**:
@@ -461,7 +582,7 @@ See [LICENSE](LICENSE) file for details.
 
 A modern IDE experience for PSeInt development
 
-[![GitHub stars](https://img.shields.io/github/stars/username/pseint-lsp?style=social)](https://github.com/username/pseint-lsp)
-[![GitHub forks](https://img.shields.io/github/forks/username/pseint-lsp?style=social)](https://github.com/username/pseint-lsp/fork)
+[![GitHub stars](https://img.shields.io/github/stars/icristianhernandez/pseint-lsp?style=social)](https://github.com/icristianhernandez/pseint-lsp)
+[![GitHub forks](https://img.shields.io/github/forks/icristianhernandez/pseint-lsp?style=social)](https://github.com/icristianhernandez/pseint-lsp/fork)
 
-**[⭐ Star this project](https://github.com/username/pseint-lsp) | [🐛 Report Bug](https://github.com/username/pseint-lsp/issues) | [💡 Request Feature](https://github.com/username/pseint-lsp/issues)**
+**[⭐ Star this project](https://github.com/icristianhernandez/pseint-lsp) | [🐛 Report Bug](https://github.com/icristianhernandez/pseint-lsp/issues) | [💡 Request Feature](https://github.com/icristianhernandez/pseint-lsp/issues)**

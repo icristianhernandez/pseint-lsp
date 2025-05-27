@@ -15,7 +15,7 @@ server_path = script_dir / "server.py"
 sys.path.insert(0, str(script_dir))
 
 # Import and run the server
-if __name__ == "__main__":
+def main():
     # Change to the script directory to ensure relative imports work
     os.chdir(script_dir)
     
@@ -24,3 +24,6 @@ if __name__ == "__main__":
     
     # Run the server
     server.run()
+
+if __name__ == "__main__":
+    main()

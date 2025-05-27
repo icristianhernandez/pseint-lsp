@@ -167,7 +167,7 @@ pre-commit-run:
 # Variables
 PYTHON := python3
 VENV := .venv
-SRC := src/
+SRC := pseint_lsp/
 
 # Phony targets
 .PHONY: help install test lint format clean

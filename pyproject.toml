@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pseint-lsp"
+version = "0.1.0"
+description = "Language Server Protocol implementation and formatter for PSeInt."
+authors = [
+    { name = "Cristian Hernandez", email = "cristianhernandez9007@gmail.com" }
+]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "pygls>=1.0.0,<2.0.0",
+    "lsprotocol>=2023.0.1"
+]
+
+[tool.setuptools.packages.find]
+include = ["pseint_lsp*"]
+exclude = ["reference_code*", "tests*", "docs*"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.26.0",
+    "pytest-cov>=6.0.0",
+    "pytest-xdist>=3.0.0",
+    "pytest-mock>=3.0.0",
+    "ruff>=0.4.0",
+    "bandit>=1.7.0",
+    "pre-commit>=3.0.0",
+    "sphinx>=7.0.0",
+    "sphinx-rtd-theme>=2.0.0",
+    "ipython>=8.0.0",
+    "ipdb>=0.13.0"
+]
+
+[project.scripts]
+pseint-lsp = "pseint_lsp.server:main"
+pseint-format = "pseint_lsp.cli_formatter:main"
+
+[tool.ruff]
+extend = "ruff.toml"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra"
+testpaths = [
+    "tests"
+]

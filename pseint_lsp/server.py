@@ -2,7 +2,7 @@
 import logging
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from pygls.server import LanguageServer
 from lsprotocol.types import (
@@ -317,9 +317,9 @@ async def hover_handler(ls: LanguageServer, params: HoverParams) -> Optional[Hov
         # --- Format Hover Content ---
         if hover_target_info:
             hover_lines = []
-            s_type = found_symbol.symbol_type
-            s_name = found_symbol.name
-            s_details = found_symbol.details
+            s_type = hover_target_info["type"]
+            s_name = hover_target_info["name"]
+            s_details = hover_target_info["details"]
 
             hover_lines.append(f"**{s_name}** `({s_type})`")
 
@@ -349,7 +349,7 @@ async def hover_handler(ls: LanguageServer, params: HoverParams) -> Optional[Hov
                     # The 'return_var' in details might be the name of the variable assigned or the function name itself.
                     hover_lines.append(f"**Retorna**: `{s_details.get('return_var')}`")
             
-            hover_lines.append(f"\n*Definido en línea: {found_symbol.declaration_line + 1}*") # +1 for 1-based display
+            hover_lines.append(f"\n*Definido en línea: {hover_target_info['declaration_line']}*")
 
             markdown_text = "\n\n".join(hover_lines) # Use double newline for better markdown spacing
             logging.debug(f"Hover content for '{word}': {markdown_text}")
@@ -506,6 +506,11 @@ def run():
     logging.info("Starting PSeInt LSP Server (Python) via stdio")
     server.start_io()
     logging.info("PSeInt LSP Server (Python) stopped")
+
+
+def main():
+    """Entry point for the pseint-lsp command."""
+    run()
 
 
 if __name__ == "__main__":

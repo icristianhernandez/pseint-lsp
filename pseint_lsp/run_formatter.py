@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-from src.formatter import format_pseint_code
+from pseint_lsp.formatter import format_pseint_code
 
 def main():
     if len(sys.argv) != 3:
