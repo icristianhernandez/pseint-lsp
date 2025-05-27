@@ -72,11 +72,16 @@ PSEINT_KEYWORDS_DEFINITIONS = {
     "Cadena": {"kind": CompletionItemKind.TypeParameter, "doc": "Tipo de dato para cadenas de caracteres."},
 
     # Built-in functions / commands (subset)
-    "Borrar Pantalla": {"kind": CompletionItemKind.Function, "doc": "Limpia la pantalla de salida."},
-    "Esperar": {"kind": CompletionItemKind.Function, "doc": "Pausa la ejecución por un tiempo."},
+    "BorrarPantalla": {"kind": CompletionItemKind.Keyword, "doc": "Limpia la pantalla de salida."},
+    "EsperarTecla": {"kind": CompletionItemKind.Keyword, "doc": "Pausa la ejecución hasta que se presione una tecla."},
+    "Esperar": {"kind": CompletionItemKind.Function, "doc": "Pausa la ejecución por un tiempo específico."},
+    "Milisegundos": {"kind": CompletionItemKind.Keyword, "doc": "Unidad de tiempo en milisegundos (usado con Esperar)."},
+    "Segundos": {"kind": CompletionItemKind.Keyword, "doc": "Unidad de tiempo en segundos (usado con Esperar)."},
     "Mayusculas": {"kind": CompletionItemKind.Function, "doc": "Convierte una cadena a mayúsculas."},
+    "Minusculas": {"kind": CompletionItemKind.Function, "doc": "Convierte una cadena a minúsculas."},
     "Longitud": {"kind": CompletionItemKind.Function, "doc": "Obtiene la longitud de una cadena."},
     "Subcadena": {"kind": CompletionItemKind.Function, "doc": "Extrae una parte de una cadena."},
+    "SubCadena": {"kind": CompletionItemKind.Function, "doc": "Extrae una parte de una cadena (sinónimo de Subcadena)."},
     "ConvertirANumero": {"kind": CompletionItemKind.Function, "doc": "Convierte una cadena a número."},
     "Aleatorio": {"kind": CompletionItemKind.Function, "doc": "Genera un número aleatorio."},
     "trunc": {"kind": CompletionItemKind.Function, "doc": "Trunca la parte decimal de un número."}
@@ -208,7 +213,9 @@ ALL_KEYWORD_COMPLETION_ITEMS: List[CompletionItem] = [
         kind=details["kind"],
         insert_text_format=InsertTextFormat.PlainText,
         insert_text=keyword,
-        documentation=details["doc"]
+        documentation=details["doc"],
+        # Additional properties to prevent function-like behavior for keywords
+        detail="PSeInt Keyword" if details["kind"] == CompletionItemKind.Keyword else None
     ) for keyword, details in PSEINT_KEYWORDS_DEFINITIONS.items()
 ]
 
@@ -261,7 +268,7 @@ def get_contextual_completions(document_content: str, cursor_line_num: int, curs
         allowed_keyword_labels.update(base_keywords)
         # Keywords for specific data types or common commands
         allowed_keyword_labels.update({"Entero", "Real", "Numero", "Logico", "Booleano", "Caracter", "Texto", "Cadena", "Como"})
-        allowed_keyword_labels.update({"Borrar Pantalla", "Esperar", "Mayusculas", "Longitud", "Subcadena", "ConvertirANumero", "Aleatorio", "trunc"})
+        allowed_keyword_labels.update({"BorrarPantalla", "EsperarTecla", "Esperar", "Milisegundos", "Segundos", "Mayusculas", "Minusculas", "Longitud", "Subcadena", "SubCadena", "ConvertirANumero", "Aleatorio", "trunc"})
 
 
         if current_block_keyword in {"proceso", "algoritmo"}:
