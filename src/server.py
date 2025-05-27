@@ -1,3 +1,4 @@
+from typing import Optional, Dict, Any
 #!/usr/bin/env python3
 import logging
 import sys
@@ -49,10 +50,10 @@ try:
     from .completions import get_contextual_completions
     from .pseint_parser import analyze_document_context, Symbol # Added
 except ImportError:
-    from formatter import format_pseint_code
-    from encoding_utils import ensure_clean_text
-    from completions import get_contextual_completions
-    from pseint_parser import analyze_document_context, Symbol # Added
+    from src.formatter import format_pseint_code
+    from src.encoding_utils import ensure_clean_text
+    from src.completions import get_contextual_completions
+    from src.pseint_parser import analyze_document_context, Symbol # Added
 
 logging.basicConfig(level=logging.DEBUG, filename="/tmp/pseint_lsp.log")
 

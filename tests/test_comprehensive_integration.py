@@ -12,7 +12,7 @@ import os
 
 # Add the parent directory to the path to import the formatter
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from formatter import format_pseint_code
+from src.formatter import format_pseint_code
 
 
 def test_full_reference_code():

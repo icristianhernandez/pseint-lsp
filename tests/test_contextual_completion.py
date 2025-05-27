@@ -11,7 +11,7 @@ from pathlib import Path
 script_dir = Path(__file__).parent.absolute()
 sys.path.insert(0, str(script_dir))
 
-from completions import get_contextual_completions
+from src.completions import get_contextual_completions
 from lsprotocol.types import CompletionItemKind
 
 def test_context(context_name, test_code, line_num, char_num):

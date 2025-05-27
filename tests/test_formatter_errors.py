@@ -2,7 +2,7 @@ import unittest
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from formatter import format_pseint_code
+from src.formatter import format_pseint_code
 
 class TestFormatterErrors(unittest.TestCase):
     """Test cases for identified formatter errors in the formatted reference code."""

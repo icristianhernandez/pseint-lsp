@@ -8,7 +8,7 @@ import os
 # Add the current directory to sys.path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from formatter import format_pseint_code
+from src.formatter import format_pseint_code
 
 def test_encoding_compatibility():
     """Test how the formatter handles different encodings"""

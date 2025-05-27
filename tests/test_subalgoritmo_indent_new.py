@@ -10,7 +10,7 @@ import os
 # Add the project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from formatter import format_pseint_code
+from src.formatter import format_pseint_code
 
 class TestSubAlgoritmoIndent(unittest.TestCase):
     """Test SubAlgoritmo indentation functionality"""

@@ -20,7 +20,7 @@ if __name__ == "__main__":
     os.chdir(script_dir)
     
     # Import the server module
-    import server
+    from src import server
     
     # Run the server
     server.run()

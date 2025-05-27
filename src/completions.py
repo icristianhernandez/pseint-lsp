@@ -5,7 +5,7 @@ from lsprotocol.types import CompletionItem, CompletionItemKind, InsertTextForma
 try:
     from .pseint_parser import analyze_document_context, Symbol, BlockContext
 except ImportError:
-    from pseint_parser import analyze_document_context, Symbol, BlockContext
+    from src.pseint_parser import analyze_document_context, Symbol, BlockContext
 
 
 PSEINT_KEYWORDS_DEFINITIONS = {

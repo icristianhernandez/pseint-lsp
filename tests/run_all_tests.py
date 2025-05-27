@@ -45,6 +45,14 @@ def run_test_suite():
             "test_comprehensive_integration.py",
             "test_real_world_code.py"
         ],
+        "Completion & LSP Tests": [
+            "test_case_sensitivity.py",
+            "test_completion_check.py",
+            "test_contextual_completion.py",
+            "test_deep_inspection.py",
+            "test_lsp_completion.py",
+            "test_simple_completion.py"
+        ],
         "Server Tests": [
             "test_server.py"
         ],

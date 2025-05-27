@@ -32,10 +32,10 @@ from lsprotocol.types import (
 )
 
 # Import server module
-import server
-from server import completions as server_completions
-from server import hover_handler as server_hover_handler # Import the hover handler
-from server import signature_help_handler as server_signature_help_handler # Import the signature help handler
+from src import server
+from src.server import completions as server_completions
+from src.server import hover_handler as server_hover_handler # Import the hover handler
+from src.server import signature_help_handler as server_signature_help_handler # Import the signature help handler
 
 
 class TestPSeIntLSPServer(unittest.IsolatedAsyncioTestCase):

@@ -18,7 +18,7 @@ from lsprotocol.types import (
     CompletionParams, Position, TextDocumentIdentifier,
     InitializeParams, CompletionItemKind
 )
-from server import server
+from src.server import server
 
 async def test_completion_behavior():
     """Test the actual completion behavior from the LSP server."""

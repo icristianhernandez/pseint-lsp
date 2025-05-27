@@ -11,7 +11,7 @@ from pathlib import Path
 script_dir = Path(__file__).parent.absolute()
 sys.path.insert(0, str(script_dir))
 
-from completions import (
+from src.completions import (
     get_contextual_completions, 
     PSEINT_KEYWORDS_DEFINITIONS, 
     ALL_KEYWORD_COMPLETION_ITEMS,

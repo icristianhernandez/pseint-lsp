@@ -4,7 +4,7 @@
 Test script to check completion behavior for the specific commands mentioned.
 """
 
-from completions import get_contextual_completions, PSEINT_KEYWORDS_DEFINITIONS
+from src.completions import get_contextual_completions, PSEINT_KEYWORDS_DEFINITIONS
 from lsprotocol.types import CompletionItemKind
 
 def test_completion_kinds():

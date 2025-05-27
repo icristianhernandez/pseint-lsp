@@ -4,7 +4,7 @@ import os
 
 # Add parent directory to path to import formatter
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from formatter import format_pseint_code
+from src.\1 import format_pseint_code
 
 class TestFormatterErrorsComprehensive(unittest.TestCase):
     """
