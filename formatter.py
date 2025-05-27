@@ -84,9 +84,11 @@ def format_pseint_code(code_string: str) -> str:
         "ConvertirANumero",
         "Mayusculas",
         "Minusculas",
-        "Borrar Pantalla",
+        "BorrarPantalla",
+        "EsperarTecla",
         "Esperar",
         "Milisegundos",
+        "Segundos",
     ]
     all_keywords_lower_to_proper_case: Dict[str, str] = {
         kw.lower(): kw for kw in all_keywords_list
