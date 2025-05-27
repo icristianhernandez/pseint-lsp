@@ -5,16 +5,15 @@ import sys
 
 
 # Add the parent directory to sys.path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from encoding_utils import (
-    detect_encoding_corruption, 
-    fix_encoding_corruption, 
+from src.encoding_utils import (
+    detect_encoding_corruption,
+    fix_encoding_corruption,
     ensure_clean_text,
     detect_file_encoding,
     validate_pseint_encoding_support
 )
-from formatter import format_pseint_code
+from src.formatter import format_pseint_code
 
 
 class TestEditorAgnosticEncoding(unittest.TestCase):

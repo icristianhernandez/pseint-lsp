@@ -13,8 +13,7 @@ from typing import Optional
 # but for a single file, direct import from the parent module is often fine if structure allows.
 
 # If `pseint_lsp_py` is in PYTHONPATH or the test is run with `python -m unittest discover pseint_lsp_py`:
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from formatter import format_pseint_code
+from src.formatter import format_pseint_code
 
 
 class TestPSeIntFormatter(unittest.TestCase):

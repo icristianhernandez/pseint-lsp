@@ -4,9 +4,7 @@ import os
 from typing import Optional
 
 # Add the parent directory to sys.path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from formatter import format_pseint_code
+from src.formatter import format_pseint_code
 
 
 class TestPSeIntFormatterIntegration(unittest.TestCase):

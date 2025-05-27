@@ -2,7 +2,7 @@ import unittest
 import sys
 import os
 from unittest.mock import Mock, patch
-from typing import cast, List
+from typing import cast, List, Optional
 
 # Add the parent directory to sys.path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -32,10 +32,10 @@ from lsprotocol.types import (
 )
 
 # Import server module
-import server
-from server import completions as server_completions
-from server import hover_handler as server_hover_handler # Import the hover handler
-from server import signature_help_handler as server_signature_help_handler # Import the signature help handler
+import src.server as server
+from src.server import completions as server_completions
+from src.server import hover_handler as server_hover_handler # Import the hover handler
+from src.server import signature_help_handler as server_signature_help_handler # Import the signature help handler
 
 
 class TestPSeIntLSPServer(unittest.IsolatedAsyncioTestCase):
@@ -63,7 +63,7 @@ class TestPSeIntLSPServer(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(result.server_info.version, "0.1.0")
         self.assertTrue(result.capabilities.document_formatting_provider)
 
-    @patch("server.logging")
+    @patch("src.server.logging")
     async def test_did_open(self, mock_logging: Mock):
         """Test the didOpen document handler."""
         # Create mock document open params
@@ -84,7 +84,7 @@ class TestPSeIntLSPServer(unittest.IsolatedAsyncioTestCase):
         # Verify logging was called
         mock_logging.info.assert_called_once()
 
-    @patch("server.logging")
+    @patch("src.server.logging")
     async def test_did_change(self, mock_logging: Mock):
         """Test the didChange document handler."""
         # Create mock document change params
@@ -107,7 +107,7 @@ class TestPSeIntLSPServer(unittest.IsolatedAsyncioTestCase):
         # Verify logging was called
         mock_logging.info.assert_called_once()
 
-    @patch("server.logging")
+    @patch("src.server.logging")
     async def test_did_save(self, mock_logging: Mock):
         """Test the didSave document handler."""
         # Create mock document save params
@@ -317,7 +317,7 @@ FinProceso
         self.assertIn("otroValor", labels) # Should also be suggested as it's in scope
 
         if "miNumero" in item_details:
-            self.assertEqual(item_details["miNumero"].kind, CompletionItemKind.VARIABLE)
+            self.assertEqual(item_details["miNumero"].kind, CompletionItemKind.Variable)
             self.assertIn("Entero", item_details["miNumero"].detail if item_details["miNumero"].detail else "")
             
     async def test_completions_variable_suggestion_out_of_scope(self):
@@ -356,10 +356,10 @@ FinFuncion
         self.assertIn("resultado", labels) # Return var also in scope
 
         if "param1" in item_details:
-            self.assertEqual(item_details["param1"].kind, CompletionItemKind.VARIABLE) # Params treated as vars
+            self.assertEqual(item_details["param1"].kind, CompletionItemKind.Variable) # Params treated as vars
             self.assertIn("Entero", item_details["param1"].detail if item_details["param1"].detail else "")
         if "resultado" in item_details: # The return variable
-             self.assertEqual(item_details["resultado"].kind, CompletionItemKind.VARIABLE)
+             self.assertEqual(item_details["resultado"].kind, CompletionItemKind.Variable)
 
 
     async def test_completions_function_definition_suggestion(self):
@@ -381,7 +381,7 @@ FinFuncion
 
         self.assertIn("MiFuncion", labels)
         if "MiFuncion" in item_details:
-            self.assertEqual(item_details["MiFuncion"].kind, CompletionItemKind.FUNCTION)
+            self.assertEqual(item_details["MiFuncion"].kind, CompletionItemKind.Function)
             self.assertIn("(n)", item_details["MiFuncion"].detail if item_details["MiFuncion"].detail else "")
             
     async def test_completions_array_suggestion_in_scope(self):
@@ -401,7 +401,7 @@ FinProceso
         self.assertIn("miVector", labels)
         self.assertIn("miMatriz", labels)
         if "miVector" in item_details:
-            self.assertEqual(item_details["miVector"].kind, CompletionItemKind.VARIABLE) # Arrays are Variable kind
+            self.assertEqual(item_details["miVector"].kind, CompletionItemKind.Variable) # Arrays are Variable kind
             self.assertIn("Arreglo", item_details["miVector"].detail if item_details["miVector"].detail else "")
             self.assertIn("[5]", item_details["miVector"].detail if item_details["miVector"].detail else "")
 
@@ -727,22 +727,22 @@ FinProceso"""
         
         self.assertIn("num1", labels)
         if "num1" in labels:
-            self.assertEqual(labels["num1"].kind, CompletionItemKind.VARIABLE)
+            self.assertEqual(labels["num1"].kind, CompletionItemKind.Variable)
             self.assertIn("Parámetro (Entero)", labels["num1"].detail if labels["num1"].detail else "")
 
         self.assertIn("num2", labels)
         if "num2" in labels:
-            self.assertEqual(labels["num2"].kind, CompletionItemKind.VARIABLE)
+            self.assertEqual(labels["num2"].kind, CompletionItemKind.Variable)
             self.assertIn("Parámetro (Entero)", labels["num2"].detail if labels["num2"].detail else "")
 
         self.assertIn("temp", labels) # Local variable
         if "temp" in labels:
-            self.assertEqual(labels["temp"].kind, CompletionItemKind.VARIABLE)
+            self.assertEqual(labels["temp"].kind, CompletionItemKind.Variable)
             self.assertIn("Tipo: Entero", labels["temp"].detail if labels["temp"].detail else "")
         
         self.assertIn("resultado", labels) # Function's return variable also in scope
         if "resultado" in labels:
-             self.assertEqual(labels["resultado"].kind, CompletionItemKind.VARIABLE) # Treated as a var in this context
+             self.assertEqual(labels["resultado"].kind, CompletionItemKind.Variable) # Treated as a var in this context
              self.assertIn("Tipo: Desconocido", labels["resultado"].detail if labels["resultado"].detail else "") # Type of return var not explicitly stored by current parser for this symbol
 
 
@@ -758,12 +758,12 @@ FinProceso"""
 
         self.assertIn("listaNumeros", labels)
         if "listaNumeros" in labels:
-            self.assertEqual(labels["listaNumeros"].kind, CompletionItemKind.VARIABLE)
+            self.assertEqual(labels["listaNumeros"].kind, CompletionItemKind.Variable)
             self.assertIn("Parámetro (Real, Por Referencia)", labels["listaNumeros"].detail if labels["listaNumeros"].detail else "")
 
         self.assertIn("indice", labels)
         if "indice" in labels:
-            self.assertEqual(labels["indice"].kind, CompletionItemKind.VARIABLE)
+            self.assertEqual(labels["indice"].kind, CompletionItemKind.Variable)
             self.assertIn("Parámetro (Entero)", labels["indice"].detail if labels["indice"].detail else "")
         
         self.assertIn("Escribir", labels) # General keywords should also be available
@@ -784,7 +784,7 @@ FinProceso"""
         self.assertNotIn("resultado", labels) # 'resultado' is local to MiFunc
         self.assertIn("x", labels)
         if "x" in labels:
-            self.assertEqual(labels["x"].kind, CompletionItemKind.VARIABLE)
+            self.assertEqual(labels["x"].kind, CompletionItemKind.Variable)
             self.assertIn("Tipo: Entero", labels["x"].detail if labels["x"].detail else "")
 
 

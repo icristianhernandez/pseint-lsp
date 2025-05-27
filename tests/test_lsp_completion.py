@@ -10,15 +10,11 @@ import tempfile
 import sys
 
 # Ensure we can import from the current directory
-script_dir = Path(__file__).parent.absolute()
-if str(script_dir) not in sys.path:
-    sys.path.insert(0, str(script_dir))
-
 from lsprotocol.types import (
     CompletionParams, Position, TextDocumentIdentifier,
     InitializeParams, CompletionItemKind
 )
-from server import server
+from src.server import server
 
 async def test_completion_behavior():
     """Test the actual completion behavior from the LSP server."""

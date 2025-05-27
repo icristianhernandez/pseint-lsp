@@ -16,8 +16,8 @@ from pathlib import Path
 from typing import Optional
 
 
-from formatter import format_pseint_code
-from encoding_utils import detect_file_encoding, ensure_clean_text
+from src.formatter import format_pseint_code
+from src.encoding_utils import detect_file_encoding, ensure_clean_text
 
 # Ensure we can import from the current directory
 script_dir = Path(__file__).parent.absolute()

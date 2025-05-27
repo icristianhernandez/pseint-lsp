@@ -5,7 +5,7 @@ import sys
 # Add the parent directory to sys.path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from formatter import format_pseint_code
+from src.formatter import format_pseint_code
 
 
 class TestEncodingCompatibility(unittest.TestCase):

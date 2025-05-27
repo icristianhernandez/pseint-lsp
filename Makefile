@@ -82,7 +82,7 @@ clean:
 	rm -rf .mypy_cache/
 
 server:
-	python server.py
+	python -m src.server
 
 check:
 	ruff check .
@@ -94,7 +94,7 @@ dev: install-dev
 	@echo "🚀 Starting development mode..."
 	@echo "📦 Dependencies installed"
 	@echo "🔧 Running LSP server..."
-	python server.py
+	python -m src.server
 
 run: server
 
@@ -102,7 +102,7 @@ watch:
 	@echo "👀 Starting server in watch mode (restart on file changes)..."
 	@which inotifywait > /dev/null || (echo "Installing inotify-tools..." && sudo apt-get install -y inotify-tools)
 	@while true; do \
-		python server.py & \
+		python -m src.server & \
 		SERVER_PID=$$!; \
 		inotifywait -r -e modify,create,delete --exclude '(__pycache__|\.pyc$$|\.git)' .; \
 		echo "🔄 Files changed, restarting server..."; \

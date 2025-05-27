@@ -1,8 +1,7 @@
 import unittest
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from formatter import format_pseint_code
+from src.formatter import format_pseint_code
 
 class TestFormatterErrorsFromReferenceCode(unittest.TestCase):
     """Test cases for specific formatter errors found in the formatted reference_code1.psc."""

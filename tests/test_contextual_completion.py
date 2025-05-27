@@ -11,10 +11,10 @@ from pathlib import Path
 script_dir = Path(__file__).parent.absolute()
 sys.path.insert(0, str(script_dir))
 
-from completions import get_contextual_completions
+from src.completions import get_contextual_completions
 from lsprotocol.types import CompletionItemKind
 
-def test_context(context_name, test_code, line_num, char_num):
+def _test_context(context_name, test_code, line_num, char_num):
     print(f"\n{context_name}")
     print("=" * 50)
     
@@ -40,34 +40,34 @@ def test_context(context_name, test_code, line_num, char_num):
 
 def main():
     # Test 1: Inside a simple process
-    test_context("Inside Process", 
+    _test_context("Inside Process",
                 """Proceso Test
     Definir x Como Entero
     """, 2, 4)
     
     # Test 2: Inside a Si block
-    test_context("Inside Si block",
+    _test_context("Inside Si block",
                 """Proceso Test
     Si x > 0 Entonces
         Escribir "Positivo"
         """, 3, 8)
     
     # Test 3: Inside a Para block
-    test_context("Inside Para block",
+    _test_context("Inside Para block",
                 """Proceso Test
     Para i <- 1 Hasta 10 Hacer
         Escribir i
         """, 3, 8)
     
     # Test 4: Inside a Mientras block
-    test_context("Inside Mientras block",
+    _test_context("Inside Mientras block",
                 """Proceso Test
     Mientras x > 0 Hacer
         x <- x - 1
         """, 3, 8)
     
     # Test 5: Inside a Segun block
-    test_context("Inside Segun block",
+    _test_context("Inside Segun block",
                 """Proceso Test
     Segun x Hacer
         Caso 1:
