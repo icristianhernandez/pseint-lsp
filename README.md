@@ -39,6 +39,12 @@ Bringing modern IDE features to PSeInt development ✨
 - Cross-platform support
 - Zero configuration
 
+#### 💡 Enhanced Code Intelligence
+- Context-aware auto-completion for keywords, variables, and functions.
+- Helpful code snippets for common PSeInt structures.
+- Rich hover information for symbols (variable types, function signatures).
+- Parameter signature help for functions and subprocesos during calls.
+
 **🔌 Editor Support**: Neovim • VS Code • *More coming soon...*
 
 ## 🚀 Quick Start
@@ -260,7 +266,9 @@ Once configured with your editor, the LSP provides powerful code formatting and 
 | `gra` | ⚡ Code actions | Quick fixes and refactoring |
 | `grr` | 🔍 Show references | Find all symbol usages |
 | `gd` | 🎯 Go to definition | Jump to symbol definition |
-| `K` | 📖 Hover documentation | Show symbol information |
+| `K` | 📖 Hover Information | Show detailed information about the symbol under the cursor (e.g., type, definition, parameters). |
+| `Ctrl+Space` (Editor specific) | 💡 Auto-completion | Get suggestions for keywords, variables, functions, and snippets relevant to the current context. |
+| `(` or `,` (in function call) | ℹ️ Signature Help | See parameter information for functions and subprocesos as you type. |
 
 > **💡 Pro Tip**: These features work automatically once your editor is configured. Just open a `.psc` file and start coding!
 
@@ -417,10 +425,10 @@ make pre-commit      # ✅ Full pre-commit check
 
 The project is designed to be easily extensible for additional LSP features:
 
-- **🔍 Diagnostics**: Syntax error detection and reporting
-- **💡 Auto-completion**: Intelligent code completion for PSeInt keywords and variables
-- **🧭 Symbol navigation**: Go to definition, find references
-- **⚡ Refactoring tools**: Rename symbols, extract functions
+- **🔍 Diagnostics**: Real-time syntax error detection and reporting.
+- **↪️ Find References**: Find all usages of a symbol across a project (if applicable to PSeInt usage).
+- **🛠️ Advanced Refactoring Tools**: More sophisticated refactoring options beyond basic symbol rename.
+- **🧩 Cross-File Analysis**: (For users who might structure larger PSeInt projects across multiple files) Support for understanding symbols and dependencies across different files in a project.
 
 ### 📱 VS Code Extension
 
